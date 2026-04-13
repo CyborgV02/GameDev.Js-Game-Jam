@@ -9,10 +9,20 @@ public class PlayerController : MonoBehaviour
     {
         
     }
+<<<<<<< Updated upstream
 
     // Update is called once per frame
     void Update()
     {
         
+=======
+    void Update()
+    {
+        playerRb.velocity=moveInput*moveSpeed;
+    }
+    public void Move(InputAction.CallbackContext context)
+    {
+        moveInput=context.ReadValue<Vector2>();
+>>>>>>> Stashed changes
     }
 }
