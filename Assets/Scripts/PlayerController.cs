@@ -7,10 +7,12 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D playerRb;
     private Vector2 moveInput;
-    private float moveSpeed=5.0f;
+    private float moveSpeed = 5.0f;
+    private MainCharacter playerCharacter;
     void Awake()
     {
-        playerRb=GetComponent<Rigidbody2D>();
+        playerRb = GetComponent<Rigidbody2D>();
+        playerCharacter = new MainCharacter();
     }
 
     void Update()
