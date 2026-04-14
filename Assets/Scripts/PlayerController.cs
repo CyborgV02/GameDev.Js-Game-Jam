@@ -7,18 +7,20 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D playerRb;
     private Vector2 moveInput;
-    private float moveSpeed=5.0f;
+    private float moveSpeed = 5.0f;
+
     void Awake()
     {
-        playerRb=GetComponent<Rigidbody2D>();
+        playerRb = GetComponent<Rigidbody2D>();
+        InputController.OnMove += Move;
     }
 
     void Update()
     {
-        playerRb.velocity=moveInput*moveSpeed;
+        playerRb.velocity = moveInput * moveSpeed;
     }
-    public void Move(InputAction.CallbackContext context)
+    public void Move(Vector2 context)
     {
-        moveInput=context.ReadValue<Vector2>();
+        moveInput = context;
     }
 }
