@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D playerRb;
     private Vector2 moveInput;
     private float moveSpeed = 5.0f;
+    
 
     void Awake()
     {
