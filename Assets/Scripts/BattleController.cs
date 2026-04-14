@@ -6,17 +6,15 @@ using UnityEngine;
 public class BattleController : MonoBehaviour
 {
     private Battle currentBattle;
-    private InputController inputController;
     public Action<Character[], Enemy[]> OnBattleStart;
     public Action<BattleState> OnBattleEnd;
 
     void Awake()
     {
-        inputController = GetComponent<InputController>();
-        inputController.OnMove += HandleMove;
-        inputController.OnActionZ += HandleActionZ;
-        inputController.OnActionX += HandleActionX;
-        inputController.OnActionC += HandleActionC;
+        InputController.OnMove += HandleMove;
+        InputController.OnActionZ += HandleActionZ;
+        InputController.OnActionX += HandleActionX;
+        InputController.OnActionC += HandleActionC;
         OnBattleStart += InitBattle;
     }
     
