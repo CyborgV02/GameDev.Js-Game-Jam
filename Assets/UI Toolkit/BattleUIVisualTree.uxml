@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<engine:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:engine="UnityEngine.UIElements"
-    xmlns:editor="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
->
-    
-</engine:UXML>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="MainContainer" style="height: 100%;">
+        <ui:VisualElement name="InteractionContainer" style="height: 20%; transform-origin: bottom; top: 100%; translate: 0 -100%; background-color: rgba(0, 0, 0, 0.94); justify-content: center; flex-direction: row;">
+            <ui:VisualElement name="AllyContainer" style="height: 85%; width: 33%; transform-origin: bottom; translate: 0 -85%; background-color: rgb(8, 8, 8); border-top-right-radius: 20px; border-top-left-radius: 20px; margin-right: 10px; margin-left: 10px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

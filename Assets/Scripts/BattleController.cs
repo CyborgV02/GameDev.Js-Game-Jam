@@ -52,4 +52,9 @@ public class BattleController : MonoBehaviour
 
     }
 
+    private void UseItem(Character character /*, item object*/)
+    {
+        // Implement item usage logic
+    }
+
 }
