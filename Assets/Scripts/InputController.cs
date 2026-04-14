@@ -7,10 +7,10 @@ public class InputController : MonoBehaviour
 {
     private Controls controls;
 
-    public Action<Vector2> OnMove;
-    public Action OnActionZ;
-    public Action OnActionX;
-    public Action OnActionC;
+    public static Action<Vector2> OnMove;
+    public static Action OnActionZ;
+    public static Action OnActionX;
+    public static Action OnActionC;
 
     void OnEnable()
     {
@@ -22,10 +22,11 @@ public class InputController : MonoBehaviour
         controls.Disable();
     }
 
-    void Start()
+    void Awake()
     {
         controls = new Controls();
         controls.PlayerActions.Move.performed += ctx => OnMove?.Invoke(ctx.ReadValue<Vector2>());
+        controls.PlayerActions.Move.canceled += ctx => OnMove?.Invoke(Vector2.zero);
         controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
         controls.PlayerActions.ExInteract.performed += ctx => OnActionX?.Invoke();
         controls.PlayerActions.Menu.performed += ctx => OnActionC?.Invoke();

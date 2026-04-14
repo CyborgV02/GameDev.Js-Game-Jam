@@ -11,18 +11,20 @@ public class PlayerController : MonoBehaviour
     private MainCharacter playerCharacter;
     public MainCharacter Character { get { return playerCharacter; } }
     
+
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         playerCharacter = new MainCharacter();
+        InputController.OnMove += Move;
     }
 
     void Update()
     {
-        playerRb.velocity=moveInput*moveSpeed;
+        playerRb.velocity = moveInput * moveSpeed;
     }
-    public void Move(InputAction.CallbackContext context)
+    public void Move(Vector2 context)
     {
-        moveInput=context.ReadValue<Vector2>();
+        moveInput = context;
     }
 }
