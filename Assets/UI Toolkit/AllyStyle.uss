@@ -1,0 +1,32 @@
+.ally {
+    height: 85%;
+    width: 33%;
+    transform-origin: bottom;
+    translate: 0 -85%;
+    background-color: rgb(8, 8, 8);
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+    margin-right: 10px;
+    margin-left: 100px;
+}
+
+.allyButton {
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    height: 30px;
+    width: 45px;
+    top: -12px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.Bar {
+}

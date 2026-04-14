@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
     private MainCharacter playerCharacter;
     public MainCharacter Character { get { return playerCharacter; } }
     
-
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
