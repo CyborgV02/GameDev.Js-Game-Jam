@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -12,7 +13,6 @@ public class InventoryUI : MonoBehaviour
 
    [Header("References")]
    public Transform slotGrid;
-   public GameObject inventoryPanel;
    public TextMeshProUGUI descriptionText;
    public RectTransform cursorArrow;
 
@@ -22,33 +22,42 @@ public class InventoryUI : MonoBehaviour
    private SlotUI[] slots;
    private int selectedIndex=0;
 
-
+    void OnDestroy()
+    {
+        InputController.OnActionC-=ToggleInventory;
+    }
     void Awake()
     {
+       
         if (Instance == null)
         {
             Instance=this;
         }
         else {Destroy(gameObject);}
+         slots=slotGrid.GetComponentsInChildren<SlotUI>(); 
+         InputController.OnActionC+=ToggleInventory;
     }
 
     void Start()
     {
-        slots=slotGrid.GetComponentsInChildren<SlotUI>(); 
-        inventoryPanel.SetActive(false);
+       
+        gameObject.SetActive(false);
+        isOpen=false;
     }
 
     private void OpenInventory()
     {
+        
         isOpen=true;
-        inventoryPanel.SetActive(true);
+        gameObject.SetActive(true);
         selectedIndex=0;
         RefreshUI();
+        
     }
 
     private void CloseInventory()
     {
-        inventoryPanel.SetActive(false);
+        gameObject.SetActive(false);
         isOpen=(false);
     }
 
@@ -87,6 +96,14 @@ public class InventoryUI : MonoBehaviour
         }
         Vector3 pos=slots[selectedIndex].transform.position;
         cursorArrow.position = new Vector3(cursorArrow.position.x, pos.y, 0); 
+    }
+
+    void ToggleInventory()
+    {
+        Debug.Log("Inventory ! ");
+        if(isOpen){CloseInventory();}
+        else{OpenInventory();}
+         Debug.Log("Inventory 2 ! ");
     }
 
     public void MoveSelection(int direction)
