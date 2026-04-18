@@ -15,7 +15,7 @@ public class SlotUI : MonoBehaviour
     }
     public void SetEmpty()
     {
-        
+
         nameText.text="------";
     }
 }

@@ -100,10 +100,8 @@ public class InventoryUI : MonoBehaviour
 
     void ToggleInventory()
     {
-        Debug.Log("Inventory ! ");
         if(isOpen){CloseInventory();}
         else{OpenInventory();}
-         Debug.Log("Inventory 2 ! ");
     }
 
     public void MoveSelection(int direction)
