@@ -1,0 +1,71 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/BattleUI.uss?fileID=7433441132597879392&amp;guid=94ce2f2a388b1c341a4ebb0842d755c5&amp;type=3#BattleUI" />
+    <ui:VisualElement name="root" class="root" style="background-color: rgba(30, 30, 30, 0);">
+        <ui:VisualElement name="battle-viewport" class="battle-viewport" style="display: flex; visibility: visible; color: rgba(27, 27, 27, 0);">
+            <ui:VisualElement name="game-area" class="game-area" style="display: flex; background-color: rgba(100, 100, 100, 0); justify-content: space-around;">
+                <ui:VisualElement name="ally-container" class="ally-container">
+                    <ui:VisualElement name="ally-sprite" class="ally-sprite" />
+                    <ui:VisualElement name="battle-menu" class="battle-menu">
+                        <ui:VisualElement name="menu-top-row" class="menu-top-row">
+                            <ui:Label name="ally-name" text="ALLY" class="ally-name" />
+                            <ui:Label name="ally-hp" text="100/100" class="ally-name" style="width: 59px; font-size: 16px;" />
+                            <ui:VisualElement name="hp-bar-container" class="hp-bar-container">
+                                <ui:VisualElement name="hp-bar-fill" class="hp-bar-fill" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="action-buttons" class="action-buttons">
+                            <ui:Button name="btn-atk" text="ATK" class="action-btn btn-atk" />
+                            <ui:Button name="btn-hack" text="HACK" class="action-btn btn-hack" />
+                            <ui:Button name="btn-item" text="ITEM" class="action-btn btn-item" />
+                            <ui:Button name="btn-boom" text="BOOM" class="action-btn btn-boom" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="ally-container-2" class="ally-container" style="display: none;">
+                    <ui:VisualElement name="ally-sprite-2" class="ally-sprite" />
+                    <ui:VisualElement name="battle-menu" class="battle-menu">
+                        <ui:VisualElement name="menu-top-row" class="menu-top-row">
+                            <ui:Label name="ally-name-2" text="ALLY" class="ally-name" />
+                            <ui:Label name="ally-hp-2" text="100/100" class="ally-name" style="width: 59px; font-size: 16px;" />
+                            <ui:VisualElement name="hp-bar-container" class="hp-bar-container">
+                                <ui:VisualElement name="hp-bar-fill-2" class="hp-bar-fill" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="action-buttons" class="action-buttons">
+                            <ui:Button name="btn-atk-2" text="ATK" class="action-btn btn-atk" />
+                            <ui:Button name="btn-hack-2" text="HACK" class="action-btn btn-hack" />
+                            <ui:Button name="btn-item-2" text="ITEM" class="action-btn btn-item" />
+                            <ui:Button name="btn-boom-2" text="BOOM" class="action-btn btn-boom" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="text-bar" class="text-bar">
+            <ui:VisualElement name="text-bar-inner" class="text-bar-inner">
+                <ui:VisualElement name="dialog-options" class="dialog-options" style="flex-direction: row; display: flex;">
+                    <ui:VisualElement name="options-1" style="flex-grow: 1; margin-right: 10px; margin-left: 10px;">
+                        <ui:Label name="dialog-option-1" text="* What will ALLY do?" class="dialog-option dialog-option--selected" />
+                        <ui:Label name="dialog-option-2" text="* Choose your action." class="dialog-option" />
+                        <ui:Label name="dialog-option-3" text="* The enemy watches carefully." class="dialog-option" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="options-2" style="flex-grow: 1; margin-left: 10px; margin-right: 10px;">
+                        <ui:Label name="dialog-option-4" text="* What will ALLY do?" class="dialog-option" />
+                        <ui:Label name="dialog-option-5" text="* Choose your action." class="dialog-option" />
+                        <ui:Label name="dialog-option-6" text="* The enemy watches carefully." class="dialog-option" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="text-box" class="dialog-options" style="flex-direction: row; display: none;">
+                    <ui:VisualElement name="options-1" style="flex-grow: 1; margin-right: 10px; margin-left: 10px;">
+                        <ui:Label name="dialog-1" text="* What will ALLY do?" class="dialog-option" />
+                        <ui:Label name="dialog-2" text="* Choose your action." class="dialog-option" />
+                        <ui:Label name="dialog-3" text="* The enemy watches carefully." class="dialog-option" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="nav-hint" class="nav-hint">
+                    <ui:Label name="nav-text" text="◀▲▼▶ to select" class="nav-text" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

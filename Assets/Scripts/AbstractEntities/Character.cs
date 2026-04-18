@@ -7,8 +7,10 @@ public abstract class Character
 {
     private string name = "Ally";
     private int hp = 100;
+    private int currentHp = 100;
     private int level = 1;
     private int exp = 0;
+    private Sprite[] sprite;
     private Ability[] abilities;
 
     public string Name { get => name; }
@@ -16,6 +18,8 @@ public abstract class Character
     public int Level { get => level; }
     public int Exp { get => exp; }
     public Ability[] Abilities { get => abilities; }
+    public Sprite[] Sprite { get => sprite; }
+    public int CurrentHp { get => currentHp;}
 
     public Character(string name, int hp, int level, int exp, Ability[] abilities)
     {
@@ -28,8 +32,8 @@ public abstract class Character
 
     public void TakeDamage(int damage)
     {
-        hp -= damage;
-        if (hp < 0) hp = 0;
+        currentHp -= damage;
+        if (currentHp < 0) currentHp = 0;
     }
 
     public void Heal(int amount)

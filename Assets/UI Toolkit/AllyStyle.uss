@@ -26,6 +26,13 @@
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
+    -unity-font: url("project://database/Assets/TextMesh%20Pro/Fonts/BlockCraft.otf?fileID=12800000&guid=c7fb38e5cdbfbcc45b99a5adc27fd083&type=3#BlockCraft");
+    -unity-font-definition: initial;
+    font-size: 22px;
+    -unity-font-style: normal;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    text-overflow: clip;
 }
 
 .Bar {
@@ -41,4 +48,7 @@
 }
 
 .allySprite {
+}
+
+.interaction {
 }
