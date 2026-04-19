@@ -10,7 +10,6 @@ using UnityEngine.InputSystem;
 public class InventoryUI : MonoBehaviour
 {
    public static InventoryUI Instance;
-
    [Header("References")]
    public Transform slotGrid;
    public TextMeshProUGUI descriptionText;
@@ -25,42 +24,46 @@ public class InventoryUI : MonoBehaviour
     void OnDestroy()
     {
         InputController.OnActionC-=ToggleInventory;
+        InputController.OnMove-=HandleNavigate;
+        InputController.OnActionZ-=HandleConfirm;
     }
     void Awake()
     {
-       
         if (Instance == null)
         {
             Instance=this;
         }
         else {Destroy(gameObject);}
-         slots=slotGrid.GetComponentsInChildren<SlotUI>(); 
-         InputController.OnActionC+=ToggleInventory;
-    }
 
+         slots=slotGrid.GetComponentsInChildren<SlotUI>(); 
+
+         InputController.OnActionC+=ToggleInventory;
+         InputController.OnMove+=HandleNavigate;
+         InputController.OnActionZ+=HandleConfirm;
+
+    }
     void Start()
     {
        
         gameObject.SetActive(false);
         isOpen=false;
     }
-
     private void OpenInventory()
     {
         
         isOpen=true;
         gameObject.SetActive(true);
         selectedIndex=0;
+        Time.timeScale=0;
         RefreshUI();
         
     }
-
     private void CloseInventory()
     {
         gameObject.SetActive(false);
         isOpen=(false);
+        Time.timeScale=1;
     }
-
     private void RefreshUI()
     {
         List<InventoryItem> items =Inventory.instance.items;
@@ -97,7 +100,6 @@ public class InventoryUI : MonoBehaviour
         Vector3 pos=slots[selectedIndex].transform.position;
         cursorArrow.position = new Vector3(cursorArrow.position.x, pos.y, 0); 
     }
-
     void ToggleInventory()
     {
         if(isOpen){CloseInventory();}
@@ -112,12 +114,26 @@ public class InventoryUI : MonoBehaviour
         UpdateCursor();
         UpdateDescription();
     }
+
+
     public void ConfirmSelection()
     {
         Inventory.instance.UseItem(selectedIndex);
         RefreshUI();
     }
     public int GetSelectedIndex() => selectedIndex;
+
+    private void HandleNavigate(Vector2 dir)
+    {
+        if (!isOpen) return;
+        if (dir.y > 0.5f)  { MoveSelection(-1);}
+        else if (dir.y < -0.5f) {MoveSelection(1);}
+    }
+    private void HandleConfirm()
+    {
+        if(!isOpen){return;}
+        ConfirmSelection();
+    }
 }
 
 
