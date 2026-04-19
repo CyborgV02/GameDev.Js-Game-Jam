@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using JetBrains.Annotations;
+using System;
 
 public class SlotUI : MonoBehaviour
 {
@@ -12,10 +13,17 @@ public class SlotUI : MonoBehaviour
     {
         
         nameText.text=item.itemName;
+        nameText.color = Color.white; 
     }
     public void SetEmpty()
     {
 
         nameText.text="------";
+        nameText.color = Color.white;
+    }
+
+    internal void SetHighlight(bool highlighted)
+    {
+        nameText.color=highlighted ? Color.yellow: Color.white;
     }
 }

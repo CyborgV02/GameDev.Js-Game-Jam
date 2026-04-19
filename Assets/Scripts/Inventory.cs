@@ -40,7 +40,7 @@ public class Inventory : MonoBehaviour
 
     public void UseItem(int index)
     {
-        if (index < 0 || index > maxSlots)
+        if (index < 0 || index >= maxSlots)
         {
             return;
         }
