@@ -10,6 +10,7 @@ public abstract class Character
     private int currentHp = 100;
     private int level = 1;
     private int exp = 0;
+    private int attackDamage = 10;
     private Sprite[] sprite;
     private Ability[] abilities;
 
@@ -17,6 +18,7 @@ public abstract class Character
     public int Hp { get => hp; }
     public int Level { get => level; }
     public int Exp { get => exp; }
+    public int AttackDamage { get => attackDamage; }
     public Ability[] Abilities { get => abilities; }
     public Sprite[] Sprite { get => sprite; }
     public int CurrentHp { get => currentHp;}

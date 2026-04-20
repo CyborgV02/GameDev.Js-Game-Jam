@@ -70,11 +70,7 @@ public class BattleUIController : MonoBehaviour
         // initalize input
         InputController.OnMove += HandleMoveInput;
         InputController.OnActionZ += HandleActionZInput;
-        InputController.OnActionX += HandleActionXInput;
-
-        // subscribe to ally UI update event
-        UpdateAllyUI += UpdateAllyInfo;
-        BattleController.OnBattleStart += InitializeBattleUI;
+        InputController.OnActionX += HandleActionXInput;   
     }
 
     void OnDisable()
@@ -83,16 +79,15 @@ public class BattleUIController : MonoBehaviour
         InputController.OnMove -= HandleMoveInput;
         InputController.OnActionZ -= HandleActionZInput;
         InputController.OnActionX -= HandleActionXInput;
-
-        // unsubscribe from ally UI update event
-        UpdateAllyUI -= UpdateAllyInfo;
-        BattleController.OnBattleStart -= InitializeBattleUI;
      }
 
     void Awake()
     {
         root = uiDocument.rootVisualElement;
         InitializeUI();
+        // subscribe to ally UI update event
+        UpdateAllyUI += UpdateAllyInfo;
+        BattleController.OnBattleStart += InitializeBattleUI;
     }
 
     void InitializeUI() {

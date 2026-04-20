@@ -25,4 +25,10 @@ public abstract class Enemy
         this.damage = damage ?? defaultDamage;
         this.attackSpeed = attackSpeed;
     }
+
+    public void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        if (Hp < 0) Hp = 0;
+    }
 }
