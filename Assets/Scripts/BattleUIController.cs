@@ -144,6 +144,9 @@ public class BattleUIController : MonoBehaviour
         optionButtons[selectedOptionIndex].AddToClassList("dialog-option--selected");
         actionButtons1[selectedActionIndex1].AddToClassList("action-btn--selected");
         actionButtons2[selectedActionIndex2].AddToClassList("action-btn--selected");
+
+        SetTextBoxDisplay(false);
+        AdjustOptionsVisibility(false);
     }
 
     void InitializeBattleUI(BattleStartPayload payload)
