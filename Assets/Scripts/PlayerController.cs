@@ -8,11 +8,13 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D playerRb;
     private Vector2 moveInput;
     private float moveSpeed = 5.0f;
-    
+    private MainCharacter playerCharacter;
+    public MainCharacter Character { get { return playerCharacter; } }
 
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
+        playerCharacter = new MainCharacter();
         InputController.OnMove += Move;
     }
 
