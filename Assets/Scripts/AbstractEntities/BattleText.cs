@@ -1,8 +1,8 @@
 public abstract class BattleText
 {
     public string[,] Texts { get; }
-    private string[] EnemyName { get; }
-    private string[] AllyName { get; }
+    protected string[] EnemyName { get; set; }
+    protected string[] AllyName { get; set; }
     public int currentEnemyNameIndex { get; set; }
     public int currentAllyNameIndex { get; set; }
     public int currentMoveText { get; set; }

@@ -20,11 +20,20 @@ public class Battle
     public BattleState state = BattleState.Start;
     public BattleText battleText;
 
+    public Battle(Character player, Character[] allies, Enemy[] enemies, BattleText battleText = null)
+    {
+        this.player = player;
+        this.allies = allies;
+        this.enemies = enemies;
+        this.battleText = battleText ?? new DefaultBattleText();
+    }
+
     public Battle(Character player, Character[] allies, Enemy[] enemies)
     {
         this.player = player;
         this.allies = allies;
         this.enemies = enemies;
+        this.battleText = new DefaultBattleText();
     }
 
     public void StartBattle()

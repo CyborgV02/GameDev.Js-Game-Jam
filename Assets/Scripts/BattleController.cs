@@ -8,18 +8,20 @@ public class BattleController : MonoBehaviour
 {
     private Battle? currentBattle;
     public static Action<BattleStartPayload> OnBattleStart;
+    public static Action<Character> UseItemAction;
+    public static Action<Character, Ability> UseMoveAction;
+    public static Action<Character> UseAttackAction;
     public static Action? OnBattleEnd;
 
     void Awake()
     {
-        InputController.OnMove += HandleMove;
-        InputController.OnActionZ += HandleActionZ;
-        InputController.OnActionX += HandleActionX;
-        InputController.OnActionC += HandleActionC;
         OnBattleStart += InitBattle;
+        UseItemAction += UseItem;
+        // UseMoveAction += UseMove;
+        // UseAttackAction += UseAttack;
     }
 
-    void InitBattle(BattleStartPayload payload)
+    private void InitBattle(BattleStartPayload payload)
     {
         if (payload.payloadType == BattleStartPayload.PayloadType.BattleData && payload.allies != null && payload.enemies != null)
         {
@@ -35,28 +37,13 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    private void HandleMove(Vector2 direction)
+    private void UseItem(Character character /*, item object*/) // TODO: Define item object
     {
-
-    }
-    private void HandleActionZ()
-    {
-
+        // TODO: Implement item usage logic
     }
 
-    private void HandleActionX()
-    {
-
-    }
-
-    private void HandleActionC()
-    {
-
-    }
-
-    private void UseItem(Character character /*, item object*/)
-    {
-        // Implement item usage logic
+    private void UseMove(Character character, Ability ability) {
+        
     }
 
 }
