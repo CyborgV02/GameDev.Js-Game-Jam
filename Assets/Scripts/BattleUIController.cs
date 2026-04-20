@@ -74,6 +74,7 @@ public class BattleUIController : MonoBehaviour
 
         // subscribe to ally UI update event
         UpdateAllyUI += UpdateAllyInfo;
+        BattleController.OnBattleStart += InitializeBattleUI;
     }
 
     void OnDisable()
@@ -85,6 +86,7 @@ public class BattleUIController : MonoBehaviour
 
         // unsubscribe from ally UI update event
         UpdateAllyUI -= UpdateAllyInfo;
+        BattleController.OnBattleStart -= InitializeBattleUI;
      }
 
     void Awake()
@@ -142,6 +144,24 @@ public class BattleUIController : MonoBehaviour
         optionButtons[selectedOptionIndex].AddToClassList("dialog-option--selected");
         actionButtons1[selectedActionIndex1].AddToClassList("action-btn--selected");
         actionButtons2[selectedActionIndex2].AddToClassList("action-btn--selected");
+    }
+
+    void InitializeBattleUI(BattleStartPayload payload)
+    {
+        if (payload.payloadType == BattleStartPayload.PayloadType.BattleData && payload.battle != null)
+        {
+            UpdateAllyInfo(payload.battle.player, payload.battle.allies.Length > 1 ? payload.battle.allies[1] : null);
+            string[] initialText = payload.battle.battleText.SetText(new BattleTextPayload
+            {
+                currentEnemyNameIndex = 0,
+                currentAllyNameIndex = 0,
+                currentMoveText = 0,
+                customText = ""
+            });
+            SetTextBoxText(initialText);
+            SetTextBoxDisplay(true);
+            AdjustOptionsVisibility(false);
+        }
     }
 
     void HandleMoveInput(Vector2 input)
@@ -264,6 +284,17 @@ public class BattleUIController : MonoBehaviour
         } else {
             optionsContainerElement.style.display = DisplayStyle.None;
             textBoxContainerElement.style.display = DisplayStyle.Flex;
+        }
+    }
+
+    void SetTextBoxText(string[] textLines) {
+        for (int i = 0; i < textBoxOptions.Length; i++) {
+            if (i < textLines.Length) {
+                textBoxOptions[i].text = textLines[i];
+                textBoxOptions[i].style.display = DisplayStyle.Flex;
+            } else {
+                textBoxOptions[i].style.display = DisplayStyle.None;
+            }
         }
     }
 

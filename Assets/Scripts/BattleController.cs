@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,9 +6,9 @@ using UnityEngine;
 
 public class BattleController : MonoBehaviour
 {
-    private Battle currentBattle;
-    public Action<Character[], Enemy[]> OnBattleStart;
-    public Action<BattleState> OnBattleEnd;
+    private Battle? currentBattle;
+    public static Action<BattleStartPayload> OnBattleStart;
+    public static Action? OnBattleEnd;
 
     void Awake()
     {
@@ -17,16 +18,19 @@ public class BattleController : MonoBehaviour
         InputController.OnActionC += HandleActionC;
         OnBattleStart += InitBattle;
     }
-    
-    void InitBattle(Character[] allies, Enemy[] enemies)
+
+    void InitBattle(BattleStartPayload payload)
     {
-        foreach (var ally in allies)
+        if (payload.payloadType == BattleStartPayload.PayloadType.BattleData && payload.allies != null && payload.enemies != null)
         {
-            if (ally.GetType() == typeof(MainCharacter))
+            foreach (var ally in payload.allies)
             {
-                currentBattle = new Battle(ally, allies, enemies);
-                currentBattle.StartBattle();
-                break;
+                if (ally.GetType() == typeof(MainCharacter))
+                {
+                    currentBattle = new Battle(ally, payload.allies, payload.enemies);
+                    currentBattle.StartBattle();
+                    break;
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ public class Battle
     public Character[] allies;
     public Enemy[] enemies;
     public BattleState state = BattleState.Start;
+    public BattleText battleText;
 
     public Battle(Character player, Character[] allies, Enemy[] enemies)
     {

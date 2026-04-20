@@ -317,6 +317,7 @@ MonoBehaviour:
   allyContainer1: ally-container
   allyName1: ally-name
   allySprite1: ally-sprite
+  allyHP1: ally-hp
   allyHealthBar1: hp-bar-fill
   actionButtonNames1:
   - btn-atk
@@ -326,6 +327,7 @@ MonoBehaviour:
   allyContainer2: ally-container-2
   allyName2: ally-name-2
   allySprite2: ally-sprite-2
+  allyHP2: ally-hp-2
   allyHealthBar2: hp-bar-fill-2
   actionButtonNames2:
   - btn-atk-2
@@ -334,6 +336,8 @@ MonoBehaviour:
   - btn-boom-2
   optionsContainer: options-1
   optionsContainer2: options-2
+  textBoxContainer: text-box
+  optionsFullContainer: dialog-options
   optionButtonNames:
   - dialog-option-1
   - dialog-option-2
@@ -341,6 +345,11 @@ MonoBehaviour:
   - dialog-option-4
   - dialog-option-5
   - dialog-option-6
+  textBoxOptionNames:
+  - dialog-1
+  - dialog-2
+  - dialog-3
+  hasAlly2: 1
 --- !u!1 &380163837
 GameObject:
   m_ObjectHideFlags: 0
@@ -1823,6 +1832,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1343558140}
   - component: {fileID: 1343558139}
+  - component: {fileID: 1343558141}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1857,6 +1867,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1343558141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343558138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7156fbc8505a8e84a8c620682b2326fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1443783335
 GameObject:
   m_ObjectHideFlags: 0
