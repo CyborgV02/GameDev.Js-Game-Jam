@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     private float moveSpeed = 5.0f;
     private MainCharacter playerCharacter;
     public MainCharacter Character { get { return playerCharacter; } }
-    
+
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
