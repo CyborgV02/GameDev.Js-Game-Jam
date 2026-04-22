@@ -8,6 +8,12 @@ public class Chests : MonoBehaviour, IInteractable
     public bool isOpened{get;private set;}
     public string chestId{get;private set;}
     public GameObject itemPrefab;
+    private Animator chestAnim;
+
+    void Awake()
+    {
+        chestAnim=GetComponent<Animator>();
+    }
 
     void Start()
     {
@@ -26,6 +32,9 @@ public class Chests : MonoBehaviour, IInteractable
     private void OpenChest()
     {
         setOpened(true);
+
+        chestAnim.SetBool("isOpen",true);
+
         if (itemPrefab)
         {
             GameObject droppedItem = Instantiate(itemPrefab,transform.position+Vector3.down,quaternion.identity);
