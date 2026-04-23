@@ -24,12 +24,16 @@ public class InteractionDetector : MonoBehaviour
         InputController.OnActionZ-=TryInteract;
     }
 
-    private void TryInteract()
+   private void TryInteract()
+{
+    if (interactableInRange == null) return;
+    interactableInRange.interact();
+    
+    if (!interactableInRange.CanInteract())
     {
-         interactableInRange?.interact();
+        interactionIcon.SetActive(false);
     }
-
-
+}
 
     void OnTriggerEnter2D(Collider2D collision)
 {
