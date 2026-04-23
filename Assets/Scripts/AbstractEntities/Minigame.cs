@@ -12,7 +12,7 @@ public interface IMinigame
     public void StartMinigame();
     public void EndMinigame();
     public void UpdateMinigame(float deltaTime);
-    public void HandleInput();
+    public void HandleInput(Vector2 input);
     public void DamageAllies(Character[] allies);
     public void DamageEnemies(Enemy[] enemies);
 }

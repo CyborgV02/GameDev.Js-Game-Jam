@@ -7,16 +7,18 @@ using UnityEngine;
 
 public class BattleController : MonoBehaviour
 {
-    private Battle? currentBattle;
+    private static Battle? currentBattle;
     public static Action<BattleStartPayload>? OnBattleStart;
     public static Action<Character, Character, InventoryItem>? UseItemAction;
     public static Action<Character, Ability, Character?, Enemy?>? UseMoveAction;
     public static Action<Character, Enemy>? UseAttackAction;
     public static Action? OnBattleEnd;
+    public static Battle? CurrentBattle {get => currentBattle;}
     public Queue<BattleCommands<Character>> commandQueue = new Queue<BattleCommands<Character>>();
-
+    public static BattleController Instance;
     void Awake()
     {
+        Instance = this;
         OnBattleStart += InitBattle;
         UseItemAction += UseItem;
         UseMoveAction += UseMove;
@@ -116,6 +118,24 @@ public class BattleController : MonoBehaviour
                     }
                     break;
             }
+        }
+    }
+    internal void InstantiateMinigame(string minigameName)
+    {
+        if (currentBattle == null)
+        {
+            Debug.LogError("No active battle to instantiate minigame for!");
+            return;
+        }
+
+        IMinigame minigameInstance = MinigameFactory.CreateMinigame(minigameName);
+        if (minigameInstance != null)
+        {
+            minigameInstance.StartMinigame();
+        }
+        else
+        {
+            Debug.LogError($"Failed to create minigame instance for {minigameName}!");
         }
     }
 }
