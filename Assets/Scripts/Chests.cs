@@ -27,6 +27,8 @@ public class Chests : MonoBehaviour, IInteractable
     public void interact()
     {
         if(!CanInteract())return;
+
+        OpenChest();
     }
 
     private void OpenChest()
@@ -43,7 +45,7 @@ public class Chests : MonoBehaviour, IInteractable
     public void setOpened(bool opened)
     {
         isOpened=opened;
-        if (isOpened=opened)
+        if (isOpened)
         {
             //chest open animation 
         }
