@@ -1368,7 +1368,7 @@ Camera:
   field of view: 34
   orthographic: 1
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -5524,10 +5524,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CombatUI
       objectReference: {fileID: 0}
-    - target: {fileID: 5779266696397347157, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7658504403689865434, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6000
@@ -5566,10 +5562,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7658504403689865434, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7794272767556958534, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
-      propertyPath: hasAlly2
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

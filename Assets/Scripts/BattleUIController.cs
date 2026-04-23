@@ -30,6 +30,7 @@ public class BattleUIController : MonoBehaviour
 {
     [SerializeField] private UIDocument uiDocument;
     [SerializeField] private GameObject battleSquare;
+    [SerializeField] private Camera battleCamera;
     private VisualElement root;
     private bool isUIInitialized;
     static public Action<Character, Character?>? UpdateAllyUI;
@@ -232,6 +233,7 @@ public class BattleUIController : MonoBehaviour
             StartActorSelection();
             SetBattleSquareActive(false);
             root.style.display = DisplayStyle.Flex;
+            battleCamera.enabled = true;
         }
     }
 
@@ -295,6 +297,7 @@ public class BattleUIController : MonoBehaviour
         {
             root.style.display = DisplayStyle.None;
         }
+        battleCamera.enabled = false;
     }
 
     private void HandleMinigameStarted()

@@ -38,7 +38,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     void OnEnable()
     {
         ObjectiveCollected += () => {ObjectiveCollectedFlag = true; objectiveObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies);};
-        GoalCollected += () => {GoalCollectedFlag = true; goalObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies); EndMinigame();};
+        GoalCollected += () => {if (!ObjectiveCollectedFlag) return; GoalCollectedFlag = true; goalObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies); EndMinigame();};
         PlayerDamaged += () => DamageAllies(BattleController.CurrentBattle?.allies);
     }
 
@@ -93,6 +93,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
         {
             BattleController.Instance.NotifyMinigameEnded();
         }
+        Destroy(gameObject);
     }
 
     public void UpdateMinigame(float deltaTime)
