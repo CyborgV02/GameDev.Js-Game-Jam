@@ -23,7 +23,13 @@ public class Node
             nodeObject.transform.localPosition = new Vector3(x * travelDistance, y * travelDistance, nodeObject.transform.localPosition.z);
         }
     }
-
+    public void SnapToPosition((int, int) newPosition)
+    {
+        if (nodeObject != null)
+        {
+            nodeObject.transform.localPosition = new Vector3(newPosition.Item1 * travelDistance, newPosition.Item2 * travelDistance, nodeObject.transform.localPosition.z);
+        }
+    }
     public void Move((int, int) newPosition)
     {
         if (math.abs(newPosition.Item1) == 1 && math.abs(newPosition.Item2) == 1)
