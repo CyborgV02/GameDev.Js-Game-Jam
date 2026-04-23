@@ -23,14 +23,25 @@ public class NodeBehavior : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log($"Node trigger entered by {other.gameObject.name}");
         if (other.CompareTag("Player"))
         {
+            Debug.Log($"Player entered {nodeType} node trigger");
             if (nodeType == NodeType.Objective)
                 NodeTransfer.ObjectiveCollected?.Invoke();
             else if (nodeType == NodeType.Goal)
                 NodeTransfer.GoalCollected?.Invoke();
             else if (nodeType == NodeType.Enemy)
                 NodeTransfer.PlayerDamaged?.Invoke();
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log($"Node collision entered by {collision.gameObject.name}");
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Debug.Log($"Player collided with {nodeType} node");
         }
     }
 }

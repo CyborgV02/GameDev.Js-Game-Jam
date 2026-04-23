@@ -11,7 +11,7 @@ public abstract class Character
     private int level = 1;
     private int exp = 0;
     private int attackDamage = 10;
-    private Sprite[] sprite;
+    internal Sprite[] sprite;
     private Ability[] abilities;
 
     public string Name { get => name; }

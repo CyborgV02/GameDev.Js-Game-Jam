@@ -4,7 +4,7 @@
         <ui:VisualElement name="battle-viewport" class="battle-viewport" style="display: flex; visibility: visible; color: rgba(27, 27, 27, 0);">
             <ui:VisualElement name="game-area" class="game-area" style="display: flex; background-color: rgba(100, 100, 100, 0); justify-content: space-around;">
                 <ui:VisualElement name="ally-container" class="ally-container">
-                    <ui:VisualElement name="ally-sprite" class="ally-sprite" />
+                    <ui:VisualElement name="ally-sprite" class="ally-sprite" style="background-image: none;" />
                     <ui:VisualElement name="battle-menu" class="battle-menu">
                         <ui:VisualElement name="menu-top-row" class="menu-top-row">
                             <ui:Label name="ally-name" text="ALLY" class="ally-name" />

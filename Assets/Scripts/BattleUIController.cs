@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,14 +9,29 @@ public enum SelectionState
     None,
     Ally1,
     Ally2,
-    Options
+    Options,
+    Confirm
+}
+
+public enum SelectionMenuContext
+{
+    None,
+    AttackTarget,
+    HackAbility,
+    HackTargetEnemy,
+    HackTargetAlly,
+    ItemSelect,
+    ItemTargetAlly,
+    BoomTarget
 }
 
 
 public class BattleUIController : MonoBehaviour
 {
     [SerializeField] private UIDocument uiDocument;
+    [SerializeField] private GameObject battleSquare;
     private VisualElement root;
+    private bool isUIInitialized;
     static public Action<Character, Character?>? UpdateAllyUI;
     [Header("UI Elements Ally 1")]
     [SerializeField] private string allyContainer1 = "ally-container-1";
@@ -26,7 +42,7 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private string[] actionButtonNames1 = { "btn-atk", "btn-hack", "btn-item", "btn-boom" };
     private VisualElement allyContainerElement1;
     private Label allyNameElement1;
-    private Image allySpriteElement1;
+    private VisualElement allySpriteElement1;
     private Label allyHP1Element;
     private VisualElement allyHealthBarElement1;
     private Button[] actionButtons1;
@@ -41,7 +57,7 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private string[] actionButtonNames2 = { "btn-atk-2", "btn-hack-2", "btn-item-2", "btn-boom-2" };
     private VisualElement allyContainerElement2;
     private Label allyNameElement2;
-    private Image allySpriteElement2;
+    private VisualElement allySpriteElement2;
     private Label allyHP2Element;
     private VisualElement allyHealthBarElement2;
     private Button[] actionButtons2;
@@ -57,13 +73,20 @@ public class BattleUIController : MonoBehaviour
     private VisualElement optionsContainerElement;
     private VisualElement optionsContainerElement2;
     private VisualElement textBoxContainerElement;
-    private VisualElement optionsFullContainerElement;
+    // private VisualElement optionsFullContainerElement;
     private Label[] textBoxOptions;
     private Label[] optionButtons;
     private int selectedOptionIndex = 0;
 
     private SelectionState currentSelectionState = SelectionState.Ally1;
-    [SerializeField] private bool hasAlly2 = true;
+    private SelectionMenuContext currentMenuContext = SelectionMenuContext.None;
+    private BattleSelectionBatch currentSelectionBatch = new BattleSelectionBatch();
+    private BattleActionSelection? activeSelection;
+    private Character[]? currentAllies;
+    private Enemy[]? currentEnemies;
+    private int currentActorIndex = 0;
+
+    [SerializeField] private bool hasAlly2 = false;
 
     void OnEnable()
     {
@@ -81,20 +104,56 @@ public class BattleUIController : MonoBehaviour
         InputController.OnActionX -= HandleActionXInput;
      }
 
+    void OnDestroy()
+    {
+        UpdateAllyUI -= UpdateAllyInfo;
+        BattleController.OnBattleStart -= InitializeBattleUI;
+        BattleController.OnBattleEnd -= HandleBattleEnd;
+        BattleController.OnMinigameStarted -= HandleMinigameStarted;
+        BattleController.OnMinigameEnded -= HandleMinigameEnded;
+    }
+
     void Awake()
     {
-        root = uiDocument.rootVisualElement;
-        InitializeUI();
+        TryInitializeUI();
         // subscribe to ally UI update event
         UpdateAllyUI += UpdateAllyInfo;
         BattleController.OnBattleStart += InitializeBattleUI;
+        BattleController.OnBattleEnd += HandleBattleEnd;
+        BattleController.OnMinigameStarted += HandleMinigameStarted;
+        BattleController.OnMinigameEnded += HandleMinigameEnded;
+    }
+
+    private bool TryInitializeUI()
+    {
+        if (isUIInitialized)
+        {
+            return true;
+        }
+
+        if (uiDocument == null)
+        {
+            Debug.LogError("BattleUIController is missing UIDocument reference.");
+            return false;
+        }
+
+        root = uiDocument.rootVisualElement;
+        if (root == null)
+        {
+            Debug.LogWarning("BattleUIController could not initialize UI because rootVisualElement is null.");
+            return false;
+        }
+
+        InitializeUI();
+        isUIInitialized = true;
+        return true;
     }
 
     void InitializeUI() {
         // Initialize Ally 1 elements
         allyContainerElement1 = root.Q<VisualElement>(name: allyContainer1);
         allyNameElement1 = root.Q<Label>(name: allyName1);
-        allySpriteElement1 = root.Q<Image>(name: allySprite1);
+        allySpriteElement1 = root.Q<VisualElement>(name: allySprite1);
         allyHP1Element = root.Q<Label>(name: allyHP1);
         allyHealthBarElement1 = root.Q<VisualElement>(name: allyHealthBar1);
         actionButtons1 = new Button[actionButtonNames1.Length];
@@ -106,7 +165,7 @@ public class BattleUIController : MonoBehaviour
         // Initialize Ally 2 elements
         allyContainerElement2 = root.Q<VisualElement>(name: allyContainer2);
         allyNameElement2 = root.Q<Label>(name: allyName2);
-        allySpriteElement2 = root.Q<Image>(name: allySprite2);
+        allySpriteElement2 = root.Q<VisualElement>(name: allySprite2);
         allyHP2Element = root.Q<Label>(name: allyHP2);
         allyHealthBarElement2 = root.Q<VisualElement>(name: allyHealthBar2);
         actionButtons2 = new Button[actionButtonNames2.Length];
@@ -123,7 +182,7 @@ public class BattleUIController : MonoBehaviour
         optionsContainerElement = root.Q<VisualElement>(name: optionsContainer);
         optionsContainerElement2 = root.Q<VisualElement>(name: optionsContainer2);
         textBoxContainerElement = root.Q<VisualElement>(name: textBoxContainer);
-        optionsFullContainerElement = root.Q<VisualElement>(name: optionsFullContainer);
+        // optionsFullContainerElement = root.Q<VisualElement>(name: optionsFullContainer);
         optionButtons = new Label[optionButtonNames.Length];
         textBoxOptions = new Label[textBoxOptionNames.Length];
 
@@ -142,12 +201,24 @@ public class BattleUIController : MonoBehaviour
 
         SetTextBoxDisplay(false);
         AdjustOptionsVisibility(false);
+        SetBattleSquareActive(false);
+        root.style.display = DisplayStyle.None;
     }
 
     void InitializeBattleUI(BattleStartPayload payload)
     {
         if (payload.payloadType == BattleStartPayload.PayloadType.BattleData && payload.battle != null)
         {
+            if (!TryInitializeUI())
+            {
+                Debug.LogError("BattleUIController failed to initialize UI before battle start.");
+                return;
+            }
+
+            currentAllies = payload.battle.allies;
+            currentEnemies = payload.battle.enemies;
+            currentSelectionBatch = new BattleSelectionBatch();
+            currentActorIndex = 0;
             UpdateAllyInfo(payload.battle.player, payload.battle.allies.Length > 1 ? payload.battle.allies[1] : null);
             string[] initialText = payload.battle.battleText.SetText(new BattleTextPayload
             {
@@ -158,12 +229,268 @@ public class BattleUIController : MonoBehaviour
             });
             SetTextBoxText(initialText);
             SetTextBoxDisplay(true);
-            AdjustOptionsVisibility(false);
+            StartActorSelection();
+            SetBattleSquareActive(false);
+            root.style.display = DisplayStyle.Flex;
         }
+    }
+
+    private Character? GetCurrentActor()
+    {
+        if (currentAllies == null || currentActorIndex < 0 || currentActorIndex >= currentAllies.Length)
+        {
+            return null;
+        }
+
+        return currentAllies[currentActorIndex];
+    }
+
+    private Button[] GetCurrentActionButtons()
+    {
+        return currentActorIndex == 0 ? actionButtons1 : actionButtons2;
+    }
+
+    private int GetCurrentActionIndex()
+    {
+        return currentActorIndex == 0 ? selectedActionIndex1 : selectedActionIndex2;
+    }
+
+    private void SetCurrentActionIndex(int newIndex)
+    {
+        if (currentActorIndex == 0)
+        {
+            selectedActionIndex1 = newIndex;
+        }
+        else
+        {
+            selectedActionIndex2 = newIndex;
+        }
+    }
+
+    private bool HasSecondActor
+    {
+        get
+        {
+            return hasAlly2 && currentAllies != null && currentAllies.Length > 1;
+        }
+    }
+
+    private void StartActorSelection()
+    {
+        activeSelection = new BattleActionSelection
+        {
+            actor = GetCurrentActor()
+        };
+
+        currentSelectionState = currentActorIndex == 0 ? SelectionState.Ally1 : SelectionState.Ally2;
+        currentMenuContext = SelectionMenuContext.None;
+        AdjustOptionsVisibility(false);
+        SetBattleSquareActive(false);
+    }
+
+    private void HandleBattleEnd()
+    {
+        SetBattleSquareActive(false);
+        if (root != null)
+        {
+            root.style.display = DisplayStyle.None;
+        }
+    }
+
+    private void HandleMinigameStarted()
+    {
+        SetBattleSquareActive(true);
+    }
+
+    private void HandleMinigameEnded()
+    {
+        SetBattleSquareActive(false);
+    }
+
+    private void SetBattleSquareActive(bool isActive)
+    {
+        if (battleSquare != null)
+        {
+            battleSquare.SetActive(isActive);
+        }
+    }
+
+    private void ClearOptionSelection()
+    {
+        if (optionButtons == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < optionButtons.Length; i++)
+        {
+            if (optionButtons[i] != null)
+            {
+                optionButtons[i].RemoveFromClassList("dialog-option--selected");
+            }
+        }
+    }
+
+    private void ClearActionSelection(Button[] actionButtons, int actionIndex)
+    {
+        if (actionButtons == null || actionIndex < 0 || actionIndex >= actionButtons.Length)
+        {
+            return;
+        }
+
+        actionButtons[actionIndex].RemoveFromClassList("action-btn--selected");
+    }
+
+    private void SelectActionIndex(int newIndex)
+    {
+        var actionButtons = GetCurrentActionButtons();
+        int lastSelectedActionIndex = GetCurrentActionIndex();
+        ClearActionSelection(actionButtons, lastSelectedActionIndex);
+        SetCurrentActionIndex(newIndex);
+        actionButtons[newIndex].AddToClassList("action-btn--selected");
+    }
+
+    private void ShowOptions(string[] labels, SelectionMenuContext context)
+    {
+        currentMenuContext = context;
+        currentSelectionState = SelectionState.Options;
+        selectedOptionIndex = 0;
+        ClearOptionSelection();
+        SetOptionButtonText(labels);
+        if (optionButtons.Length > 0 && optionButtons[0] != null)
+        {
+            optionButtons[0].AddToClassList("dialog-option--selected");
+        }
+        AdjustOptionsVisibility(true);
+    }
+
+    private string[] BuildEnemyLabels()
+    {
+        if (currentEnemies == null || currentEnemies.Length == 0)
+        {
+            return new[] { "No targets" };
+        }
+
+        string[] labels = new string[currentEnemies.Length];
+        for (int i = 0; i < currentEnemies.Length; i++)
+        {
+            labels[i] = currentEnemies[i].Name;
+        }
+
+        return labels;
+    }
+
+    private string[] BuildAllyLabels()
+    {
+        if (currentAllies == null || currentAllies.Length == 0)
+        {
+            return new[] { "No targets" };
+        }
+
+        string[] labels = new string[currentAllies.Length];
+        for (int i = 0; i < currentAllies.Length; i++)
+        {
+            labels[i] = currentAllies[i].Name;
+        }
+
+        return labels;
+    }
+
+    private string[] BuildAbilityLabels()
+    {
+        Character? actor = GetCurrentActor();
+        if (actor == null || actor.Abilities == null || actor.Abilities.Length == 0)
+        {
+            return new[] { "No abilities" };
+        }
+
+        List<string> labels = new List<string>();
+        foreach (Ability ability in actor.Abilities)
+        {
+            if (ability != null && ability.Unlocked)
+            {
+                labels.Add(ability.Name);
+            }
+        }
+
+        return labels.Count > 0 ? labels.ToArray() : new[] { "No abilities" };
+    }
+
+    private string[] BuildItemLabels()
+    {
+        if (Inventory.instance == null || Inventory.instance.items == null || Inventory.instance.items.Count == 0)
+        {
+            return new[] { "No items" };
+        }
+
+        string[] labels = new string[Inventory.instance.items.Count];
+        for (int i = 0; i < Inventory.instance.items.Count; i++)
+        {
+            labels[i] = Inventory.instance.items[i].itemName;
+        }
+
+        return labels;
+    }
+
+    private void FinalizeCurrentSelection()
+    {
+        if (activeSelection == null)
+        {
+            return;
+        }
+
+        if (activeSelection.IsComplete)
+        {
+            currentSelectionBatch.selections.Add(activeSelection);
+        }
+
+        activeSelection = null;
+
+        if (currentActorIndex == 0 && HasSecondActor)
+        {
+            currentActorIndex = 1;
+            StartActorSelection();
+            return;
+        }
+
+        if (BattleController.Instance != null)
+        {
+            BattleController.Instance.SubmitSelections(currentSelectionBatch);
+        }
+
+        currentSelectionBatch = new BattleSelectionBatch();
+        currentSelectionState = SelectionState.None;
+        currentMenuContext = SelectionMenuContext.None;
+        AdjustOptionsVisibility(false);
+    }
+
+    private void BackOutOneStep()
+    {
+        if (currentSelectionState != SelectionState.Options)
+        {
+            return;
+        }
+
+        if (currentMenuContext == SelectionMenuContext.HackTargetEnemy || currentMenuContext == SelectionMenuContext.HackTargetAlly)
+        {
+            ShowOptions(BuildAbilityLabels(), SelectionMenuContext.HackAbility);
+            return;
+        }
+
+        if (currentMenuContext == SelectionMenuContext.ItemTargetAlly)
+        {
+            ShowOptions(BuildItemLabels(), SelectionMenuContext.ItemSelect);
+            return;
+        }
+
+        currentSelectionState = currentActorIndex == 0 ? SelectionState.Ally1 : SelectionState.Ally2;
+        currentMenuContext = SelectionMenuContext.None;
+        AdjustOptionsVisibility(false);
     }
 
     void HandleMoveInput(Vector2 input)
     {
+        if (!isUIInitialized) return;
         Debug.Log($"Move Input Received: {input}");
         if (currentSelectionState == SelectionState.Options)
         {
@@ -190,8 +517,14 @@ public class BattleUIController : MonoBehaviour
                 selectedOptionIndex = (selectedOptionIndex + 1) % optionButtons.Length;
             }
 
-            optionButtons[lastSelectedOptionIndex].RemoveFromClassList("dialog-option--selected");
-            optionButtons[selectedOptionIndex].AddToClassList("dialog-option--selected");
+            if (optionButtons[lastSelectedOptionIndex] != null)
+            {
+                optionButtons[lastSelectedOptionIndex].RemoveFromClassList("dialog-option--selected");
+            }
+            if (optionButtons[selectedOptionIndex] != null)
+            {
+                optionButtons[selectedOptionIndex].AddToClassList("dialog-option--selected");
+            }
         }
         else if (currentSelectionState == SelectionState.Ally1)
         {
@@ -235,22 +568,137 @@ public class BattleUIController : MonoBehaviour
     {
         if (currentSelectionState == SelectionState.Options)
         {
-            Debug.Log($"Selected Option: {optionButtons[selectedOptionIndex].name}");
-            // TEMP: Just cycle back to Ally 1 for now, eventually this will trigger the selected option's effect and then move to the next state as needed
-            currentSelectionState = SelectionState.Ally1; // Go into combat or whatever after selecting an option
-            AdjustOptionsVisibility(false);
+            if (currentMenuContext == SelectionMenuContext.AttackTarget || currentMenuContext == SelectionMenuContext.BoomTarget)
+            {
+                if (currentEnemies != null && currentEnemies.Length > 0)
+                {
+                    activeSelection!.selectedEnemyTarget = currentEnemies[Mathf.Clamp(selectedOptionIndex, 0, currentEnemies.Length - 1)];
+                }
+                FinalizeCurrentSelection();
+                return;
+            }
+
+            if (currentMenuContext == SelectionMenuContext.HackAbility)
+            {
+                Character? actor = GetCurrentActor();
+                if (actor == null || actor.Abilities == null || actor.Abilities.Length == 0)
+                {
+                    return;
+                }
+
+                List<Ability> unlockedAbilities = new List<Ability>();
+                foreach (Ability ability in actor.Abilities)
+                {
+                    if (ability != null && ability.Unlocked)
+                    {
+                        unlockedAbilities.Add(ability);
+                    }
+                }
+
+                if (unlockedAbilities.Count == 0)
+                {
+                    return;
+                }
+
+                activeSelection!.selectedAbility = unlockedAbilities[Mathf.Clamp(selectedOptionIndex, 0, unlockedAbilities.Count - 1)];
+                if (!activeSelection.selectedAbility.NeedsTarget)
+                {
+                    FinalizeCurrentSelection();
+                    return;
+                }
+
+                if (activeSelection.selectedAbility.IsOffensive)
+                {
+                    ShowOptions(BuildEnemyLabels(), SelectionMenuContext.HackTargetEnemy);
+                }
+                else
+                {
+                    ShowOptions(BuildAllyLabels(), SelectionMenuContext.HackTargetAlly);
+                }
+
+                return;
+            }
+
+            if (currentMenuContext == SelectionMenuContext.HackTargetEnemy)
+            {
+                if (currentEnemies != null && currentEnemies.Length > 0)
+                {
+                    activeSelection!.selectedEnemyTarget = currentEnemies[Mathf.Clamp(selectedOptionIndex, 0, currentEnemies.Length - 1)];
+                }
+
+                FinalizeCurrentSelection();
+                return;
+            }
+
+            if (currentMenuContext == SelectionMenuContext.HackTargetAlly)
+            {
+                if (currentAllies != null && currentAllies.Length > 0)
+                {
+                    activeSelection!.selectedAllyTarget = currentAllies[Mathf.Clamp(selectedOptionIndex, 0, currentAllies.Length - 1)];
+                }
+
+                FinalizeCurrentSelection();
+                return;
+            }
+
+            if (currentMenuContext == SelectionMenuContext.ItemSelect)
+            {
+                if (Inventory.instance == null || Inventory.instance.items.Count == 0)
+                {
+                    return;
+                }
+
+                activeSelection!.selectedItem = Inventory.instance.items[Mathf.Clamp(selectedOptionIndex, 0, Inventory.instance.items.Count - 1)];
+                ShowOptions(BuildAllyLabels(), SelectionMenuContext.ItemTargetAlly);
+                return;
+            }
+
+            if (currentMenuContext == SelectionMenuContext.ItemTargetAlly)
+            {
+                if (currentAllies != null && currentAllies.Length > 0)
+                {
+                    activeSelection!.selectedAllyTarget = currentAllies[Mathf.Clamp(selectedOptionIndex, 0, currentAllies.Length - 1)];
+                }
+
+                FinalizeCurrentSelection();
+                return;
+            }
         }
-        else if (currentSelectionState == SelectionState.Ally1)
+        else if (currentSelectionState == SelectionState.Ally1 || currentSelectionState == SelectionState.Ally2)
         {
-            Debug.Log($"Selected Action for Ally 1: {actionButtons1[selectedActionIndex1].name}");
-            currentSelectionState = hasAlly2 ? SelectionState.Ally2 : SelectionState.Options; // Switch to Ally 2 after selecting action for Ally 1
-            AdjustOptionsVisibility(false);
-        }
-        else if (currentSelectionState == SelectionState.Ally2)
-        {
-            Debug.Log($"Selected Action for Ally 2: {actionButtons2[selectedActionIndex2].name}");
-            currentSelectionState = SelectionState.Options; // Switch to Options after selecting action for Ally 2
-            AdjustOptionsVisibility(true);
+            int selectedActionIndex = GetCurrentActionIndex();
+            Character? actor = GetCurrentActor();
+            if (actor == null)
+            {
+                return;
+            }
+
+            if (activeSelection == null)
+            {
+                activeSelection = new BattleActionSelection { actor = actor };
+            }
+
+            activeSelection.actor = actor;
+
+            switch (selectedActionIndex)
+            {
+                case 0:
+                    activeSelection.selectionType = BattleSelectionType.Attack;
+                    ShowOptions(BuildEnemyLabels(), SelectionMenuContext.AttackTarget);
+                    break;
+                case 1:
+                    activeSelection.selectionType = BattleSelectionType.Hack;
+                    ShowOptions(BuildAbilityLabels(), SelectionMenuContext.HackAbility);
+                    break;
+                case 2:
+                    activeSelection.selectionType = BattleSelectionType.Item;
+                    ShowOptions(BuildItemLabels(), SelectionMenuContext.ItemSelect);
+                    break;
+                case 3:
+                    activeSelection.selectionType = BattleSelectionType.Boom;
+                    ShowOptions(BuildEnemyLabels(), SelectionMenuContext.BoomTarget);
+                    break;
+            }
         }
     }
 
@@ -258,13 +706,14 @@ public class BattleUIController : MonoBehaviour
     {
         if (currentSelectionState == SelectionState.Options)
         {
-            currentSelectionState = SelectionState.Ally1;
-            AdjustOptionsVisibility(false);
+            BackOutOneStep();
+            return;
         }
-        else if (currentSelectionState == SelectionState.Ally2)
+
+        if (currentSelectionState == SelectionState.Ally2 && currentActorIndex == 1)
         {
-            currentSelectionState = SelectionState.Ally1; // Go back to Ally 1 selection
-            AdjustOptionsVisibility(false);
+            currentActorIndex = 0;
+            StartActorSelection();
         }
     }
 
@@ -296,11 +745,23 @@ public class BattleUIController : MonoBehaviour
         }
     }
 
+    void SetOptionButtonText(string[] optionLines) {
+        for (int i = 0; i < optionButtons.Length; i++) {
+            if (i < optionLines.Length) {
+                optionButtons[i].text = optionLines[i];
+                optionButtons[i].style.display = DisplayStyle.Flex;
+            } else {
+                optionButtons[i].style.display = DisplayStyle.None;
+            }
+        }
+    }
+
     void UpdateAllyInfo(Character ally1, Character? ally2)
     {
         // Update Ally 1 UI
         allyNameElement1.text = ally1.Name;
-        allySpriteElement1.sprite = ally1.Sprite[0]; // Assuming Character has a Sprite property
+        Debug.Log(ally1.Sprite[0]);
+        allySpriteElement1.style.backgroundImage = new StyleBackground(ally1.Sprite[0]); // Assuming Character has a Sprite property
         float hpPercent1 = (float)ally1.CurrentHp / ally1.Hp;
         allyHP1Element.text = $"{ally1.CurrentHp}/{ally1.Hp}";
         allyHealthBarElement1.style.width = Length.Percent(hpPercent1 * 100);
@@ -309,11 +770,13 @@ public class BattleUIController : MonoBehaviour
         if (ally2 != null)
         {
             allyNameElement2.text = ally2.Name;
-            allySpriteElement2.sprite = ally2.Sprite[0]; // Assuming Character has a Sprite property
+            allySpriteElement2.style.backgroundImage = new StyleBackground(ally2.Sprite[0]); // Assuming Character has a Sprite property
             float hpPercent2 = (float)ally2.CurrentHp / ally2.Hp; // Assuming max HP is 100
             allyHP2Element.text = $"{ally2.CurrentHp}/{ally2.Hp}";
             allyHealthBarElement2.style.width = Length.Percent(hpPercent2 * 100);
             allyContainerElement2.style.display = DisplayStyle.Flex;
+        } else {
+            allyContainerElement2.style.display = DisplayStyle.None;
         }
     }
 

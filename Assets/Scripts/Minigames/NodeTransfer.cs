@@ -5,7 +5,6 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 public class NodeTransfer : MonoBehaviour, IMinigame
 {
-    [SerializeField] private GameObject battleSquare;
     [SerializeField] private GameObject battleCamera;
     [SerializeField] private GameObject nodeObject;
     [SerializeField] private GameObject objectiveObject;
@@ -24,7 +23,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     private float enemyMoveTimer = 0f;
     private float enemyMoveInterval = 0.3f;
 
-    public string name => _name;
+    public string minigameName => _name;
     public float duration => _duration;
     public int allyDamage => _allyDamage;
     public int enemyDamage => _enemyDamage;
@@ -53,6 +52,12 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     {
         InputController.OnMove += HandleInput;   
     }
+
+    void OnDestroy()
+    {
+        InputController.OnMove -= HandleInput;
+    }
+
     void Start()
     {
         InitMinigame();
@@ -84,6 +89,10 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     public void EndMinigame()
     {
         isMinigameActive = false;
+        if (BattleController.Instance != null)
+        {
+            BattleController.Instance.NotifyMinigameEnded();
+        }
     }
 
     public void UpdateMinigame(float deltaTime)
@@ -150,6 +159,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     public void DamageAllies(Character[] allies)
     {
         // TODO: Implement DamageAllies logic
+        if (allies == null || allies.Length == 0) return;
         for (int i = 0; i < allies.Length; i++)
         {
             allies[i].TakeDamage(allyDamage);
@@ -159,6 +169,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     public void DamageEnemies(Enemy[] enemies)
     {
         // TODO: Implement DamageEnemies logic
+        if (enemies == null || enemies.Length == 0) return;
         for (int i = 0; i < enemies.Length; i++)
         {
             enemies[i].TakeDamage(enemyDamage);

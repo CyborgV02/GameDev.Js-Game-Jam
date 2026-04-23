@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IMinigame
 {
-    public string name { get; }
+    public string minigameName { get; }
     public float duration { get; }
     public int allyDamage { get; }
     public int enemyDamage { get; }

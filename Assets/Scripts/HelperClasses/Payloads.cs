@@ -56,3 +56,55 @@ public class BattleCommandsPayload
         this.selectedAbility = selectedAbility;
     }
 }
+
+public enum BattleSelectionType
+{
+    Attack,
+    Hack,
+    Item,
+    Boom
+}
+
+public class BattleActionSelection
+{
+    public Character? actor;
+    public BattleSelectionType selectionType;
+    public Ability? selectedAbility;
+    public InventoryItem? selectedItem;
+    public Character? selectedAllyTarget;
+    public Enemy? selectedEnemyTarget;
+
+    public bool IsComplete
+    {
+        get
+        {
+            switch (selectionType)
+            {
+                case BattleSelectionType.Attack:
+                case BattleSelectionType.Boom:
+                    return actor != null && selectedEnemyTarget != null;
+                case BattleSelectionType.Hack:
+                    if (actor == null || selectedAbility == null)
+                    {
+                        return false;
+                    }
+
+                    if (selectedAbility.NeedsTarget)
+                    {
+                        return selectedAbility.IsOffensive ? selectedEnemyTarget != null : selectedAllyTarget != null;
+                    }
+
+                    return true;
+                case BattleSelectionType.Item:
+                    return actor != null && selectedItem != null && selectedAllyTarget != null;
+                default:
+                    return false;
+            }
+        }
+    }
+}
+
+public class BattleSelectionBatch
+{
+    public List<BattleActionSelection> selections = new List<BattleActionSelection>();
+}

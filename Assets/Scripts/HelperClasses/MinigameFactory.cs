@@ -1,16 +1,34 @@
 using UnityEngine;
 
-public class MinigameFactory
+public class MinigameFactory : MonoBehaviour
 {
-    private GameObject nodeTransferPrefab;
-    public static IMinigame CreateMinigame(string minigameName)
+    [SerializeField] public GameObject nodeTransferPrefab;
+    public static MinigameFactory Instance;
+    void Awake()
+    {
+        Instance = this;
+    }
+    public IMinigame CreateMinigame(string minigameName)
     {
         switch (minigameName)
         {
             case "NodeTransfer":
-                
-                return new NodeTransfer();
-            // Add more cases here for additional minigames
+                if (nodeTransferPrefab == null)
+                {
+                    Debug.LogError("NodeTransfer prefab is not assigned on MinigameFactory.");
+                    return null;
+                }
+
+                GameObject minigame = Instantiate(nodeTransferPrefab);
+                IMinigame minigameComponent = minigame.GetComponent<IMinigame>();
+                if (minigameComponent == null)
+                {
+                    Debug.LogError("NodeTransfer prefab does not implement IMinigame.");
+                    Destroy(minigame);
+                    return null;
+                }
+
+                return minigameComponent;
             default:
                 Debug.LogError($"Minigame '{minigameName}' not found!");
                 return null;

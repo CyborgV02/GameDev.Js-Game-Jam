@@ -32,18 +32,6 @@ public class Node
     }
     public void Move((int, int) newPosition)
     {
-        if (math.abs(newPosition.Item1) == 1 && math.abs(newPosition.Item2) == 1)
-            {
-                int _movement = UnityEngine.Random.Range(0, 2);
-                if (_movement == 0)
-                {
-                    newPosition.Item1 = 0;
-                }
-                else
-                {
-                    newPosition.Item2 = 0;
-                }
-            }
         this.x += newPosition.Item1;
         this.y += newPosition.Item2;
         _TransformMove(newPosition);
@@ -64,17 +52,44 @@ public class Node
             yield break;
 
         isMoving = true;
-        Vector3 startPosition = nodeObject.transform.localPosition;
-        float elapsedTime = 0f;
 
-        while (elapsedTime < moveDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            nodeObject.transform.localPosition = Vector3.Lerp(startPosition, targetPosition, elapsedTime / moveDuration);
-            yield return null;
-        }
+        Vector3 startPosition = nodeObject.transform.localPosition;
+        Vector3 xTarget = new Vector3(targetPosition.x, startPosition.y, startPosition.z);
+        Vector3 yTarget = new Vector3(targetPosition.x, targetPosition.y, startPosition.z);
+
+        // Keep total move time close to moveDuration, split by distance per axis
+        float xDist = Mathf.Abs(xTarget.x - startPosition.x);
+        float yDist = Mathf.Abs(yTarget.y - xTarget.y);
+        float total = xDist + yDist;
+
+
+        if (xDist > 0f)
+            yield return MoveSegment(startPosition, xTarget, moveDuration);
+
+        if (yDist > 0f)
+            yield return MoveSegment(xTarget, yTarget, moveDuration);
 
         nodeObject.transform.localPosition = targetPosition;
         isMoving = false;
+    }
+
+    private IEnumerator MoveSegment(Vector3 from, Vector3 to, float duration)
+    {
+        if (duration <= 0f)
+        {
+            nodeObject.transform.localPosition = to;
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+            nodeObject.transform.localPosition = Vector3.Lerp(from, to, t);
+            yield return null;
+        }
+
+        nodeObject.transform.localPosition = to;
     }
 }
