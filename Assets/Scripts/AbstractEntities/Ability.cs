@@ -7,15 +7,30 @@ public abstract class Ability
     private string name;
     private int chargeLevel;
     private bool unlocked = false;
+    private bool needsTarget = false;
+    private bool isOffensive = false;
 
-    public Ability(string name, int chargeLevel, bool unlocked = false)
+    public string Name { get => name; }
+    public int ChargeLevel { get => chargeLevel; }
+    public bool Unlocked { get => unlocked; }
+    public bool NeedsTarget { get => needsTarget; }
+    public bool IsOffensive { get => isOffensive; }
+
+    public Ability(string name, int chargeLevel, bool unlocked = false, bool needsTarget = false, bool isOffensive = false)
     {
         this.name = name;
         this.chargeLevel = chargeLevel;
         this.unlocked = unlocked;
+        this.needsTarget = needsTarget;
+        this.isOffensive = isOffensive;
     }
 
-    public virtual void Use()
+    public void Unlock()
+    {
+        unlocked = true;
+    }
+
+    public virtual void Use(Battle battle)
     {
         // TODO: Implement ability logic here
         if (!unlocked)
