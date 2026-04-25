@@ -10,16 +10,20 @@ public abstract class Character
     private int currentHp = 100;
     private int level = 1;
     private int exp = 0;
-    private Sprite[] sprite;
+    private int attackDamage = 10;
+    internal Sprite[] sprite;
     private Ability[] abilities;
 
     public string Name { get => name; }
     public int Hp { get => hp; }
     public int Level { get => level; }
     public int Exp { get => exp; }
+    public int AttackDamage { get => attackDamage; }
     public Ability[] Abilities { get => abilities; }
     public Sprite[] Sprite { get => sprite; }
     public int CurrentHp { get => currentHp;}
+    public bool IsDown => currentHp <= 0;
+    public bool IsAlive => currentHp > 0;
 
     public Character(string name, int hp, int level, int exp, Ability[] abilities)
     {

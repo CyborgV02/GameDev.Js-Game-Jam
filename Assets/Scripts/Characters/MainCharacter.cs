@@ -6,8 +6,14 @@ public class MainCharacter : Character
 {
     private static Ability[] defaultAbilities = new Ability[]
     {
-        
+         new AttackMC("Bat Attack", 1, false, true, true),
+         new NodeTransferAbility("Node Transfer", 1, true, true, true),
+         new SecureLinksAbility("Secure Links", 1, true, false, false),
+         new HellTwistAbility("Hell Twist", 1, true, false, true)
     };
-    public MainCharacter() : base("Tyr", 100, 1, 0, defaultAbilities) { }
+    public MainCharacter(Sprite[] sprites) : base("Tyr", 100, 1, 0, defaultAbilities)
+    {
+        sprite = sprites;
+    }
     
 }

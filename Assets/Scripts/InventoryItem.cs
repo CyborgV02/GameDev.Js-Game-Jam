@@ -14,5 +14,21 @@ public class InventoryItem : ScriptableObject {
 
     public enum ItemType {Consumable,KeyItem,Module}
 
+    public void Use(Character target)
+    {
+        switch (type)
+        {
+            case ItemType.Consumable:
+                target.Heal(healamount);
+                break;
+            case ItemType.KeyItem:
+                // Implement key item logic here
+                break;
+            case ItemType.Module:
+                // Implement module logic here
+                break;
+        }
+    }
+
 }
 
