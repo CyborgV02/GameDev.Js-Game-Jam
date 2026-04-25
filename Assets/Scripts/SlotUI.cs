@@ -24,6 +24,7 @@ public class SlotUI : MonoBehaviour
 
     internal void SetHighlight(bool highlighted)
     {
+          Debug.Log($"{nameText.text} highlight: {highlighted}");
         nameText.color=highlighted ? Color.yellow: Color.white;
     }
 }

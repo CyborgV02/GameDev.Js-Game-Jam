@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class InputController : MonoBehaviour
 {
     private Controls controls;
@@ -25,25 +26,16 @@ public class InputController : MonoBehaviour
     }
 
     void Awake()
-    {
-        controls = new Controls();
-        controls.PlayerActions.Move.performed += ctx => OnMove?.Invoke(ctx.ReadValue<Vector2>());
-        controls.PlayerActions.Move.canceled += ctx => OnMove?.Invoke(Vector2.zero);
-        controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
-        controls.PlayerActions.ExInteract.performed += ctx => OnActionX?.Invoke();
-        controls.PlayerActions.Menu.performed += ctx => OnActionC?.Invoke();
-        // controls.PlayerActions.Move.performed += ctx =>
-        // {
-        //     Vector2 dir =ctx.ReadValue<Vector2>();
-        //     if (dir.y > 0.5f)
-        //     {
-        //         OnNavigate?.Invoke(-1);
-        //     }
-        //     else if(dir.y <-0.5f)
-        //     {
-        //         OnNavigate?.Invoke(1);
-        //     }
-        //     controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
-        // };
-    }
+{
+    controls = new Controls();
+    
+    UnityEngine.InputSystem.InputSystem.settings.updateMode = 
+    UnityEngine.InputSystem.InputSettings.UpdateMode.ProcessEventsInDynamicUpdate;
+
+    controls.PlayerActions.Move.performed += ctx => OnMove?.Invoke(ctx.ReadValue<Vector2>());
+    controls.PlayerActions.Move.canceled += ctx => OnMove?.Invoke(Vector2.zero);
+    controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
+    controls.PlayerActions.ExInteract.performed += ctx => OnActionX?.Invoke();
+    controls.PlayerActions.Menu.performed += ctx => OnActionC?.Invoke();
+}
 }
