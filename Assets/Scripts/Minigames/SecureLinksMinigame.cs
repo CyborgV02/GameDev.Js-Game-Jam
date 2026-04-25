@@ -75,6 +75,7 @@ public class SecureLinksMinigame : MonoBehaviour, IMinigame
     public void EndMinigame()
     {
         isMinigameActive = false;
+        InputController.OnMove -= HandleInput;
         if (BattleController.Instance != null)
         {
             BattleController.Instance.NotifyMinigameEnded();
@@ -162,6 +163,7 @@ public class SecureLinksMinigame : MonoBehaviour, IMinigame
         foreach (Character ally in allies)
         {
             ally.TakeDamage(_allyDamage);
+            BattleController.NotifyAllyDamaged(ally);
         }
     }
 
@@ -175,6 +177,7 @@ public class SecureLinksMinigame : MonoBehaviour, IMinigame
         foreach (Enemy enemy in enemies)
         {
             enemy.TakeDamage(_enemyDamage);
+            BattleController.NotifyEnemyDamaged(enemy);
         }
     }
 }

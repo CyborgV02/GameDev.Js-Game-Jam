@@ -22,6 +22,8 @@ public abstract class Character
     public Ability[] Abilities { get => abilities; }
     public Sprite[] Sprite { get => sprite; }
     public int CurrentHp { get => currentHp;}
+    public bool IsDown => currentHp <= 0;
+    public bool IsAlive => currentHp > 0;
 
     public Character(string name, int hp, int level, int exp, Ability[] abilities)
     {

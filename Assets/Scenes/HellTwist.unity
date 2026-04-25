@@ -134,25 +134,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: HellTwist
       objectReference: {fileID: 0}
-    - target: {fileID: 2178393294189829300, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
-      propertyPath: m_OcclusionCulling
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4685350868594595506, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6204257200833858368, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8000
+      value: -7999.995
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.0000064373016
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -160,19 +148,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9999991
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: 0.001337177
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -184,7 +172,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7685171997235587379, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: 0.153
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

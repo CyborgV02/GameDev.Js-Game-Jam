@@ -132,7 +132,7 @@ public class Arm
         {
             Reset();
             // Player missed apply damage
-            OnDamaged?.Invoke();
+            // OnDamaged?.Invoke();
         }
     }
 }

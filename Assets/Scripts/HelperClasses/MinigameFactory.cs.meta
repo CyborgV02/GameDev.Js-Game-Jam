@@ -5,6 +5,10 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - nodeTransferPrefab: {fileID: 1861866710730302835, guid: 43db93a524e2e344d8cb31863469cbde, type: 3}
+  - attackMinigamePrefab: {fileID: 259902343101355186, guid: aca80a638a158374e8cec35e7b213b2c, type: 3}
+  - secureLinksPrefab: {fileID: 811269371194790, guid: 61ce0caab26d4da8811f11013cc3f001, type: 3}
+  - dischargePrefab: {instanceID: 0}
+  - hellTwistPrefab: {fileID: 811269371194790, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

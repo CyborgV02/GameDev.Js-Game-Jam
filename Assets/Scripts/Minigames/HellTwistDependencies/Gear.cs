@@ -5,51 +5,61 @@ public class Gear
 {
     private bool isMainGear = false;
     private GameObject gearObject;
-    private GameObject wrenchObject = null;
     private bool clockwise;
-    private Rigidbody2D gearRigidbody;
-    private Collider2D gearCollider;
-    private Collider2DRelay colliderRelay;
+    private float minMainAngle;
+    private float maxMainAngle;
+    private float currentMainAngle;
     public Action OnDamaged;
+    public Action OnBoundaryHit;
 
-    public Gear(GameObject gearObject, bool isMainGear, bool clockwise = true)
+    public Gear(GameObject gearObject, bool isMainGear, bool clockwise = true, float minMainAngle = -90f, float maxMainAngle = 90f)
     {
         this.gearObject = gearObject;
         this.isMainGear = isMainGear;
         this.clockwise = clockwise;
+        this.minMainAngle = minMainAngle;
+        this.maxMainAngle = maxMainAngle;
+
+        if (this.minMainAngle >= this.maxMainAngle)
+        {
+            this.minMainAngle = -90f;
+            this.maxMainAngle = 90f;
+            Debug.LogWarning("Invalid main gear angle bounds. Falling back to -90..90.");
+        }
+
         if (isMainGear)
         {
-            gearRigidbody = gearObject.GetComponent<Rigidbody2D>();
-            if (gearRigidbody == null)
-            {
-                Debug.LogError("Main gear must have a Rigidbody2D component.");
-            }
+            currentMainAngle = NormalizeSignedAngle(gearObject.transform.localEulerAngles.z);
+            currentMainAngle = Mathf.Clamp(currentMainAngle, this.minMainAngle, this.maxMainAngle);
+            ApplyMainAngle(currentMainAngle);
         }
     }
 
     public void SetWrench(GameObject wrench)
     {
-        wrenchObject = wrench;
-
-        colliderRelay = wrenchObject.GetComponent<Collider2DRelay>();
-        if (colliderRelay == null)
-        {
-            colliderRelay = wrenchObject.AddComponent<Collider2DRelay>();
-        }
-        // colliderRelay.TriggerEntered += HandleTriggerEntered;
-        colliderRelay.CollisionEntered += HandleCollisionEntered;
+        // Kept for compatibility with existing callers. Collision is no longer used by main gear.
     }
 
     public void Rotate(float angle)
     {
-        if (isMainGear && gearRigidbody != null)
+        if (isMainGear)
         {
-            float torque = clockwise ? -angle : angle;
-            gearRigidbody.AddTorque(torque, ForceMode2D.Force);
+            float signedDelta = clockwise ? -angle : angle;
+            float nextAngle = currentMainAngle + signedDelta;
+            float reflectedAngle = ReflectIntoRange(nextAngle, minMainAngle, maxMainAngle, out bool reflected);
+
+            currentMainAngle = reflectedAngle;
+            ApplyMainAngle(currentMainAngle);
+
+            if (reflected)
+            {
+                OnDamaged?.Invoke();
+                OnBoundaryHit?.Invoke();
+            }
         }
         else
         {
-            gearObject.transform.Rotate(Vector3.forward, clockwise ? -angle : angle);
+            gearObject.transform.RotateAround(gearObject.transform.position, Vector3.forward, clockwise ? -angle : angle);
         }
     }
 
@@ -61,23 +71,43 @@ public class Gear
         }
     }
 
-    public void Dispose()
+    private void ApplyMainAngle(float angle)
     {
-        if (colliderRelay == null)
-        {
-            return;
-        }
-
-        // colliderRelay.TriggerEntered -= HandleTriggerEntered;
-        colliderRelay.CollisionEntered -= HandleCollisionEntered;
+        Vector3 euler = gearObject.transform.localEulerAngles;
+        euler.z = angle;
+        gearObject.transform.localEulerAngles = euler;
     }
 
-    private void HandleCollisionEntered(Collision2D collision)
+    private static float NormalizeSignedAngle(float rawAngle)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        float angle = rawAngle % 360f;
+        if (angle > 180f)
         {
-            OnDamaged?.Invoke();
+            angle -= 360f;
         }
+        return angle;
+    }
+
+    private static float ReflectIntoRange(float value, float min, float max, out bool reflected)
+    {
+        reflected = false;
+        float result = value;
+
+        // Reflect at boundaries so motion remains continuous and never teleports.
+        while (result < min || result > max)
+        {
+            reflected = true;
+            if (result > max)
+            {
+                result = max - (result - max);
+            }
+            else if (result < min)
+            {
+                result = min + (min - result);
+            }
+        }
+
+        return result;
     }
 
 }

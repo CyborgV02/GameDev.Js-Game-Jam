@@ -25,6 +25,11 @@ public abstract class Ability
         this.isOffensive = isOffensive;
     }
 
+    public void Unlock()
+    {
+        unlocked = true;
+    }
+
     public virtual void Use(Battle battle)
     {
         // TODO: Implement ability logic here

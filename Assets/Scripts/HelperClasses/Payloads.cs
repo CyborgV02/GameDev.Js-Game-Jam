@@ -81,6 +81,7 @@ public class BattleActionSelection
             switch (selectionType)
             {
                 case BattleSelectionType.Attack:
+                    return actor != null && selectedEnemyTarget != null;
                 case BattleSelectionType.Boom:
                     return actor != null && selectedEnemyTarget != null;
                 case BattleSelectionType.Hack:

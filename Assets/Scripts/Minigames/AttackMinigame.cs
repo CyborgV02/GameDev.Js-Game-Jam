@@ -12,6 +12,7 @@ public class AttackMinigame : MonoBehaviour, IMinigame
     [SerializeField] private GameObject enemyArmObject;
 
     private bool isMinigameActive = true; // return to false once done testing
+    private float remainingTime = 8f;
 
     public string minigameName => _name;
     public float duration => _duration;
@@ -63,8 +64,16 @@ public class AttackMinigame : MonoBehaviour, IMinigame
 
     public void UpdateMinigame(float deltaTime)
     {
+        if (!isMinigameActive) return;
+        remainingTime -= deltaTime;
+        if (remainingTime <= 0f)    {
+            EndMinigame();
+            return;
+        }
         playerBat.Update();
         enemyArm.Update();
+
+
     }
 
     public void HandleInput(Vector2 input)
@@ -89,6 +98,7 @@ public class AttackMinigame : MonoBehaviour, IMinigame
         foreach (Character ally in allies)
         {
             ally.TakeDamage(_allyDamage);
+            BattleController.NotifyAllyDamaged(ally);
         }
     }
 
@@ -99,6 +109,7 @@ public class AttackMinigame : MonoBehaviour, IMinigame
         foreach (Enemy enemy in enemies)
         {
             enemy.TakeDamage(_enemyDamage);
+            BattleController.NotifyEnemyDamaged(enemy);
         }
     }
 }

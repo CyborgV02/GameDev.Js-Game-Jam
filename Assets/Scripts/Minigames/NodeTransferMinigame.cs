@@ -180,6 +180,7 @@ public class NodeTransferMinigame : MonoBehaviour, IMinigame
         for (int i = 0; i < allies.Length; i++)
         {
             allies[i].TakeDamage(allyDamage);
+            BattleController.NotifyAllyDamaged(allies[i]);
         }
         int _enemySpawn = Random.Range(5, 12);
         enemyNode.SnapToPosition((_enemySpawn, _enemySpawn));
@@ -193,6 +194,7 @@ public class NodeTransferMinigame : MonoBehaviour, IMinigame
         for (int i = 0; i < enemies.Length; i++)
         {
             enemies[i].TakeDamage(enemyDamage);
+            BattleController.NotifyEnemyDamaged(enemies[i]);
         }
     }
 }

@@ -112,6 +112,7 @@ public class DischargeMinigame : MonoBehaviour, IMinigame
         foreach (Character ally in allies)
         {
             ally.TakeDamage(_allyDamage);
+            BattleController.NotifyAllyDamaged(ally);
         }
     }
 
@@ -125,6 +126,7 @@ public class DischargeMinigame : MonoBehaviour, IMinigame
         foreach (Enemy enemy in enemies)
         {
             enemy.TakeDamage(_enemyDamage);
+            BattleController.NotifyEnemyDamaged(enemy);
         }
     }
 }

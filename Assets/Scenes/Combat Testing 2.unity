@@ -529,10 +529,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeTransferPrefab: {fileID: 1861866710730302835, guid: 43db93a524e2e344d8cb31863469cbde, type: 3}
-  attackMinigamePrefab: {fileID: 100000, guid: aca80a638a158374e8cec35e7b213b2c, type: 3}
-  secureLinksPrefab: {fileID: 100000, guid: 61ce0caab26d4da8811f11013cc3f001, type: 3}
-  dischargePrefab: {fileID: 100000, guid: 2a8b52b33f0b4f17bfae520079f5cb76, type: 3}
-  hellTwistPrefab: {fileID: 100000, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
+  attackMinigamePrefab: {fileID: 259902343101355186, guid: aca80a638a158374e8cec35e7b213b2c, type: 3}
+  secureLinksPrefab: {fileID: 811269371194790, guid: 61ce0caab26d4da8811f11013cc3f001, type: 3}
+  dischargePrefab: {fileID: 0}
+  hellTwistPrefab: {fileID: 811269371194790, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
 --- !u!114 &178622033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5527,6 +5527,10 @@ PrefabInstance:
     - target: {fileID: 2461718937579412679, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
       propertyPath: m_Name
       value: CombatUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 2616044964802545390, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7658504403689865434, guid: 060f4c65c01d9754f9484cb5c99e3ea1, type: 3}
       propertyPath: m_LocalPosition.x

@@ -1,6 +1,7 @@
 public enum CommandType
 {
     Attack,
+    Boom,
     UseItem,
     UseAbilityNoTarget,
     UseAbilityOffensive,

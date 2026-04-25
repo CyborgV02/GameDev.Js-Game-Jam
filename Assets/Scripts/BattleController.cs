@@ -15,7 +15,9 @@ public class BattleController : MonoBehaviour
     public static Action? OnBattleEnd;
     public static Action? OnMinigameStarted;
     public static Action? OnMinigameEnded;
-    public static Battle? CurrentBattle {get => currentBattle;}
+    public static Battle? CurrentBattle { get => currentBattle; }
+    public static Action<Character>? OnAllyDamage;
+    public static Action<Enemy>? OnEnemyDamage;
     public Queue<BattleCommands<Character>> commandQueue = new Queue<BattleCommands<Character>>();
     public List<GameObject> allowedMinigames = new List<GameObject>();
     private IMinigame? pendingMinigame;
@@ -27,6 +29,18 @@ public class BattleController : MonoBehaviour
         UseItemAction += UseItem;
         UseAbilityAction += UseAbility;
         UseAttackAction += UseAttack;
+        OnAllyDamage += HandleAllyDamage;
+        OnEnemyDamage += HandleEnemyDamage;
+    }
+
+    void OnDestroy()
+    {
+        OnBattleStart -= InitBattle;
+        UseItemAction -= UseItem;
+        UseAbilityAction -= UseAbility;
+        UseAttackAction -= UseAttack;
+        OnAllyDamage -= HandleAllyDamage;
+        OnEnemyDamage -= HandleEnemyDamage;
     }
 
     public void RequestBattleStart(Character[] allies, Enemy[] enemies)
@@ -101,8 +115,14 @@ public class BattleController : MonoBehaviour
         commandQueue.Enqueue(new BattleCommands<Character>(character, CommandType.Attack).Set(new BattleCommandsPayload(null, enemyTarget, null, null)));
     }
 
+    private void UseBoom(Character character, Enemy enemyTarget)
+    {
+        commandQueue.Enqueue(new BattleCommands<Character>(character, CommandType.Boom).Set(new BattleCommandsPayload(null, enemyTarget, null, null)));
+    }
+
     private void CommitCommands()
     {
+        bool isAnyMinigameTriggered = false;
         while (commandQueue.Count > 0)
         {
             var command = commandQueue.Dequeue();
@@ -111,7 +131,26 @@ public class BattleController : MonoBehaviour
                 case CommandType.Attack:
                     if (command.EnemyTarget != null)
                     {
-                        command.EnemyTarget.TakeDamage(command.Character.AttackDamage * command.Character.Level / 4);
+                        if (command.Character is MainCharacter)
+                        {
+                            // Trigger attack minigame for main character
+                            InstantiateMinigame("AttackMinigame");
+                            isAnyMinigameTriggered = true;
+                        }
+                        else
+                        {
+                            // For non-main characters, apply damage directly (this can be expanded with enemy attack patterns later)
+                            command.EnemyTarget.TakeDamage(command.Character.AttackDamage * command.Character.Level / 4);
+                            CheckBattleOutcome();
+                        }
+                    }
+                    break;
+                case CommandType.Boom:
+                    if (command.EnemyTarget != null)
+                    {
+                        command.EnemyTarget.Boom();
+                        NotifyEnemyDamaged(command.EnemyTarget);
+                        CheckBattleOutcome();
                     }
                     break;
                 case CommandType.UseItem:
@@ -123,19 +162,34 @@ public class BattleController : MonoBehaviour
                 case CommandType.UseAbilityNoTarget:
                     if (command.SelectedAbility != null)
                     {
+                        if (command.Character is MainCharacter)
+                        {
+                            isAnyMinigameTriggered = true;
+                        }
                         command.SelectedAbility.Use(currentBattle);
+                        CheckBattleOutcome();
                     }
                     break;
                 case CommandType.UseAbilityOffensive:
                     if (command.SelectedAbility != null && command.EnemyTarget != null)
                     {
+                         if (command.Character is MainCharacter)
+                        {
+                            isAnyMinigameTriggered = true;
+                        }
                         command.SelectedAbility.Use(currentBattle);
+                        CheckBattleOutcome();
                     }
                     break;
                 case CommandType.UseAbilitySupportive:
                     if (command.SelectedAbility != null && command.Target != null)
                     {
+                         if (command.Character is MainCharacter)
+                        {
+                            isAnyMinigameTriggered = true;
+                        }
                         command.SelectedAbility.Use(currentBattle);
+                        CheckBattleOutcome();
                     }
                     break;
             }
@@ -145,6 +199,13 @@ public class BattleController : MonoBehaviour
         {
             pendingMinigame.StartMinigame();
             pendingMinigame = null;
+            OnMinigameStarted?.Invoke();
+        } else if (!isAnyMinigameTriggered)
+        {
+            // If no minigame was triggered, use a ranndom minigame to keep the battle engaging
+            string[] randomMinigames = new string[] { "NodeTransfer", "SecureLinks", "Discharge", "HellTwist" };
+            string randomMinigame = randomMinigames[UnityEngine.Random.Range(0, randomMinigames.Length)];
+            InstantiateMinigame(randomMinigame);
             OnMinigameStarted?.Invoke();
         }
     }
@@ -188,7 +249,7 @@ public class BattleController : MonoBehaviour
                 case BattleSelectionType.Boom:
                     if (selection.actor != null && selection.selectedEnemyTarget != null)
                     {
-                        UseAttack(selection.actor, selection.selectedEnemyTarget);
+                        UseBoom(selection.actor, selection.selectedEnemyTarget);
                     }
                     break;
             }
@@ -196,7 +257,7 @@ public class BattleController : MonoBehaviour
 
         CommitCommands();
     }
-    
+
     internal void InstantiateMinigame(string minigameName)
     {
         if (currentBattle == null)
@@ -230,5 +291,61 @@ public class BattleController : MonoBehaviour
     public void NotifyMinigameEnded()
     {
         OnMinigameEnded?.Invoke();
+    }
+
+    void HandleAllyDamage(Character ally)
+    {
+        CheckBattleOutcome();
+    }
+
+    void HandleEnemyDamage(Enemy enemy)
+    {
+        CheckBattleOutcome();
+    }
+
+    public static void NotifyAllyDamaged(Character ally)
+    {
+        OnAllyDamage?.Invoke(ally);
+    }
+
+    public static void NotifyEnemyDamaged(Enemy enemy)
+    {
+        OnEnemyDamage?.Invoke(enemy);
+    }
+
+    private void CheckBattleOutcome()
+    {
+        if (currentBattle == null)
+        {
+            return;
+        }
+
+        if (currentBattle.state == BattleState.Victory || currentBattle.state == BattleState.Defeat)
+        {
+            return;
+        }
+
+        bool allAlliesDown = currentBattle.allies == null || currentBattle.allies.Length == 0 || currentBattle.allies.All(ally => ally == null || ally.IsDown);
+        bool allEnemiesBoomed = currentBattle.enemies == null || currentBattle.enemies.Length == 0 || currentBattle.enemies.All(enemy => enemy == null || enemy.IsBoomed);
+
+        if (allEnemiesBoomed)
+        {
+            EndBattle(BattleState.Victory);
+        }
+        else if (allAlliesDown)
+        {
+            EndBattle(BattleState.Defeat);
+        }
+    }
+
+    private void EndBattle(BattleState result)
+    {
+        if (currentBattle == null)
+        {
+            return;
+        }
+
+        currentBattle.EndBattle(result);
+        OnBattleEnd?.Invoke();
     }
 }

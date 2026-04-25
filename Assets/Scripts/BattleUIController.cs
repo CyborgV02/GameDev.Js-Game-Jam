@@ -97,6 +97,8 @@ public class BattleUIController : MonoBehaviour
         InputController.OnMove += HandleMoveInput;
         InputController.OnActionZ += HandleActionZInput;
         InputController.OnActionX += HandleActionXInput;
+        BattleController.OnAllyDamage += HandleAllyDamaged;
+        BattleController.OnEnemyDamage += HandleEnemyDamaged;
     }
 
     void OnDisable()
@@ -105,6 +107,8 @@ public class BattleUIController : MonoBehaviour
         InputController.OnMove -= HandleMoveInput;
         InputController.OnActionZ -= HandleActionZInput;
         InputController.OnActionX -= HandleActionXInput;
+        BattleController.OnAllyDamage -= HandleAllyDamaged;
+        BattleController.OnEnemyDamage -= HandleEnemyDamaged;
     }
 
     void OnDestroy()
@@ -247,7 +251,27 @@ public class BattleUIController : MonoBehaviour
             return null;
         }
 
-        return currentAllies[currentActorIndex];
+        Character actor = currentAllies[currentActorIndex];
+        return actor != null && actor.IsAlive ? actor : null;
+    }
+
+    private int FindNextLivingActorIndex(int startIndex)
+    {
+        if (currentAllies == null || currentAllies.Length == 0)
+        {
+            return -1;
+        }
+
+        for (int i = Mathf.Max(0, startIndex); i < currentAllies.Length; i++)
+        {
+            Character ally = currentAllies[i];
+            if (ally != null && ally.IsAlive)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private Button[] GetCurrentActionButtons()
@@ -282,6 +306,14 @@ public class BattleUIController : MonoBehaviour
 
     private void StartActorSelection()
     {
+        int nextLivingActorIndex = FindNextLivingActorIndex(currentActorIndex);
+        if (nextLivingActorIndex < 0)
+        {
+            currentSelectionState = SelectionState.None;
+            return;
+        }
+
+        currentActorIndex = nextLivingActorIndex;
         activeSelection = new BattleActionSelection
         {
             actor = GetCurrentActor()
@@ -406,7 +438,8 @@ public class BattleUIController : MonoBehaviour
         string[] labels = new string[currentAllies.Length];
         for (int i = 0; i < currentAllies.Length; i++)
         {
-            labels[i] = currentAllies[i].Name;
+            Character ally = currentAllies[i];
+            labels[i] = ally != null && ally.IsAlive ? ally.Name : "Down";
         }
 
         return labels;
@@ -464,8 +497,22 @@ public class BattleUIController : MonoBehaviour
 
         if (currentActorIndex == 0 && HasSecondActor)
         {
-            currentActorIndex = 1;
-            StartActorSelection();
+            currentActorIndex = FindNextLivingActorIndex(currentActorIndex + 1);
+            if (currentActorIndex >= 0)
+            {
+                StartActorSelection();
+                return;
+            }
+
+            if (BattleController.Instance != null)
+            {
+                BattleController.Instance.SubmitSelections(currentSelectionBatch);
+            }
+
+            currentSelectionBatch = new BattleSelectionBatch();
+            currentSelectionState = SelectionState.None;
+            currentMenuContext = SelectionMenuContext.None;
+            AdjustOptionsVisibility(false);
             return;
         }
 
@@ -507,7 +554,7 @@ public class BattleUIController : MonoBehaviour
     void HandleMoveInput(Vector2 input)
     {
         if (!isUIInitialized) return;
-        Debug.Log($"Move Input Received: {input}");
+        // Debug.Log($"Move Input Received: {input}");
         if (currentSelectionState == SelectionState.Options)
         {
             int visibleCount = GetVisibleOptionCount();
@@ -665,7 +712,13 @@ public class BattleUIController : MonoBehaviour
             {
                 if (currentAllies != null && currentAllies.Length > 0)
                 {
-                    activeSelection!.selectedAllyTarget = currentAllies[Mathf.Clamp(selectedOptionIndex, 0, currentAllies.Length - 1)];
+                    Character selectedAlly = currentAllies[Mathf.Clamp(selectedOptionIndex, 0, currentAllies.Length - 1)];
+                    if (selectedAlly == null || !selectedAlly.IsAlive)
+                    {
+                        return;
+                    }
+
+                    activeSelection!.selectedAllyTarget = selectedAlly;
                 }
 
                 FinalizeCurrentSelection();
@@ -688,7 +741,13 @@ public class BattleUIController : MonoBehaviour
             {
                 if (currentAllies != null && currentAllies.Length > 0)
                 {
-                    activeSelection!.selectedAllyTarget = currentAllies[Mathf.Clamp(selectedOptionIndex, 0, currentAllies.Length - 1)];
+                    Character selectedAlly = currentAllies[Mathf.Clamp(selectedOptionIndex, 0, currentAllies.Length - 1)];
+                    if (selectedAlly == null || !selectedAlly.IsAlive)
+                    {
+                        return;
+                    }
+
+                    activeSelection!.selectedAllyTarget = selectedAlly;
                 }
 
                 FinalizeCurrentSelection();
@@ -815,23 +874,69 @@ public class BattleUIController : MonoBehaviour
         Debug.Log(ally1.Sprite[0]);
         allySpriteElement1.style.backgroundImage = new StyleBackground(ally1.Sprite[0]); // Assuming Character has a Sprite property
         float hpPercent1 = (float)ally1.CurrentHp / ally1.Hp;
-        allyHP1Element.text = $"{ally1.CurrentHp}/{ally1.Hp}";
-        allyHealthBarElement1.style.width = Length.Percent(hpPercent1 * 100);
+        if (ally1.IsDown)
+        {
+            allyNameElement1.text = "Down";
+            allyHP1Element.text = "Down";
+            allyHealthBarElement1.style.width = Length.Percent(0);
+        }
+        else
+        {
+            allyNameElement1.text = ally1.Name;
+            allyHP1Element.text = $"{ally1.CurrentHp}/{ally1.Hp}";
+            allyHealthBarElement1.style.width = Length.Percent(hpPercent1 * 100);
+        }
 
         // Update Ally 2 UI if ally2 is not null
         if (ally2 != null)
         {
-            allyNameElement2.text = ally2.Name;
             allySpriteElement2.style.backgroundImage = new StyleBackground(ally2.Sprite[0]); // Assuming Character has a Sprite property
             float hpPercent2 = (float)ally2.CurrentHp / ally2.Hp; // Assuming max HP is 100
-            allyHP2Element.text = $"{ally2.CurrentHp}/{ally2.Hp}";
-            allyHealthBarElement2.style.width = Length.Percent(hpPercent2 * 100);
+            if (ally2.IsDown)
+            {
+                allyNameElement2.text = "Down";
+                allyHP2Element.text = "Down";
+                allyHealthBarElement2.style.width = Length.Percent(0);
+            }
+            else
+            {
+                allyNameElement2.text = ally2.Name;
+                allyHP2Element.text = $"{ally2.CurrentHp}/{ally2.Hp}";
+                allyHealthBarElement2.style.width = Length.Percent(hpPercent2 * 100);
+            }
             allyContainerElement2.style.display = DisplayStyle.Flex;
         }
         else
         {
             allyContainerElement2.style.display = DisplayStyle.None;
         }
+    }
+
+    private void HandleAllyDamaged(Character _)
+    {
+        RefreshHealthBarsFromCurrentBattle();
+    }
+
+    private void HandleEnemyDamaged(Enemy _)
+    {
+        RefreshHealthBarsFromCurrentBattle();
+    }
+
+    private void RefreshHealthBarsFromCurrentBattle()
+    {
+        if (!isUIInitialized)
+        {
+            return;
+        }
+
+        Battle? battle = BattleController.CurrentBattle;
+        if (battle == null || battle.allies == null || battle.allies.Length == 0 || battle.player == null)
+        {
+            return;
+        }
+
+        Character? ally2 = battle.allies.Length > 1 ? battle.allies[1] : null;
+        UpdateAllyInfo(battle.player, ally2);
     }
 
 }
