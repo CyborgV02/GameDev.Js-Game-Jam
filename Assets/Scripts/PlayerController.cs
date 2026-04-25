@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private float moveSpeed = 5.0f;
     [SerializeField] private MainCharacter playerCharacter;
+    public Party party;
     public MainCharacter Character { get { return playerCharacter; } }
     
 
@@ -17,7 +18,9 @@ public class PlayerController : MonoBehaviour
     {
         playerRb = GetComponent<Rigidbody2D>();
         playerCharacter = new MainCharacter(sprites); // Pass the sprites array here
+        playerCharacter.GameObject = gameObject; // Link the GameObject to the character
         InputController.OnMove += Move;
+        party = new Party(new List<Character> { playerCharacter }); // Initialize party with the main character
     }
 
     void Update()

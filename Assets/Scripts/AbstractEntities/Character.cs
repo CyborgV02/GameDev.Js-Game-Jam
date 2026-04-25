@@ -24,6 +24,7 @@ public abstract class Character
     public int CurrentHp { get => currentHp;}
     public bool IsDown => currentHp <= 0;
     public bool IsAlive => currentHp > 0;
+    public GameObject GameObject { get; set; }
 
     public Character(string name, int hp, int level, int exp, Ability[] abilities)
     {
