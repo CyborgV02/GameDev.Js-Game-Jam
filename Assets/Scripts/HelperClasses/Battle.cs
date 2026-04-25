@@ -19,6 +19,9 @@ public class Battle
     public Enemy[] enemies;
     public BattleState state = BattleState.Start;
     public BattleText battleText;
+    private int chargeLevel = 0;
+
+    public int ChargeLevel { get { return chargeLevel; } }
 
     public Battle(Character player, Character[] allies, Enemy[] enemies, BattleText battleText = null)
     {
@@ -36,10 +39,19 @@ public class Battle
         this.battleText = new DefaultBattleText();
     }
 
+    void ChargeTurn()
+    {
+        if (chargeLevel >= 3)
+            chargeLevel = 3; // Max charge level
+        else
+            chargeLevel++;
+    }
+
     public void StartBattle()
     {
         // TODO: Implement battle start logic (e.g., display UI, initialize variables)
         state = BattleState.PlayerTurn;
+        chargeLevel = 2;
     }
 
     public void EndBattle(BattleState result)

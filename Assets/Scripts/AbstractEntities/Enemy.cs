@@ -6,6 +6,8 @@ public abstract class Enemy
 {
     public string Name { get; private set; }
     public int Hp { get; private set; }
+    public bool IsDefeated => Hp <= 0;
+    public bool IsBoomed { get; private set; }
 
     public float attackSpeed { get; private set; } // Used for attacks, minigame navigation, etc.
     public Dictionary<string, int> damage { get; private set; }
@@ -24,5 +26,16 @@ public abstract class Enemy
         this.Hp = hp;
         this.damage = damage ?? defaultDamage;
         this.attackSpeed = attackSpeed;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        if (Hp < 0) Hp = 0;
+    }
+
+    public void Boom()
+    {
+        IsBoomed = true;
     }
 }

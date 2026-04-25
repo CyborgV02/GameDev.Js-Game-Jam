@@ -5,16 +5,18 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Sprite[] sprites;
     private Rigidbody2D playerRb;
     private Vector2 moveInput;
     private float moveSpeed = 5.0f;
-    private MainCharacter playerCharacter;
+    [SerializeField] private MainCharacter playerCharacter;
     public MainCharacter Character { get { return playerCharacter; } }
+    
 
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
-        playerCharacter = new MainCharacter();
+        playerCharacter = new MainCharacter(sprites); // Pass the sprites array here
         InputController.OnMove += Move;
     }
 
