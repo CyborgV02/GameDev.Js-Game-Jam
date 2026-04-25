@@ -28,11 +28,11 @@ public class NodeBehavior : MonoBehaviour
         {
             Debug.Log($"Player entered {nodeType} node trigger");
             if (nodeType == NodeType.Objective)
-                NodeTransfer.ObjectiveCollected?.Invoke();
+                NodeTransferMinigame.ObjectiveCollected?.Invoke();
             else if (nodeType == NodeType.Goal)
-                NodeTransfer.GoalCollected?.Invoke();
+                NodeTransferMinigame.GoalCollected?.Invoke();
             else if (nodeType == NodeType.Enemy)
-                NodeTransfer.PlayerDamaged?.Invoke();
+                NodeTransferMinigame.PlayerDamaged?.Invoke();
         }
     }
 

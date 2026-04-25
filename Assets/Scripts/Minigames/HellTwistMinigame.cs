@@ -6,13 +6,23 @@ public class HellTwistMinigame : MonoBehaviour, IMinigame
     [SerializeField] private int _allyDamage = 30;
     [SerializeField] private int _enemyDamage = 30;
     [SerializeField] private string _name = "Hell Twist";
-    [SerializeField] private int requiredDodges = 6;
+    
+    [SerializeField] private GameObject mainGearObject;
+    [SerializeField] private GameObject wrenchObject;
+    [SerializeField] private GameObject[] enemyGearObjects;
 
-    private bool isMinigameActive = false;
-    private float remainingTime;
-    private float dodgeWindow = 0.5f;
-    private float dodgeTimer;
-    private TwistPattern twistPattern;
+    private Gear mainGear;
+    private Gear[] enemyGears;
+
+    public const float rotationSpeedMainGear = 100f;
+    public const float rotationSpeedEnemyGear = 50f;
+
+    public const float directionChangeInterval = 2f;
+
+    private bool isMinigameActive = true; // Set to true to start the minigame immediately for testing
+    private float remainingTime = 8f;
+    private float directionChangeTimer = 2f;
+    private bool GearClockwise = true;
 
     public string minigameName => _name;
     public float duration => _duration;
@@ -29,6 +39,22 @@ public class HellTwistMinigame : MonoBehaviour, IMinigame
         InputController.OnMove -= HandleInput;
     }
 
+    void Awake()
+    {
+        remainingTime = _duration;
+        mainGear = new Gear(mainGearObject, isMainGear: true);
+        enemyGears = new Gear[enemyGearObjects.Length];
+        for (int i = 0; i < enemyGearObjects.Length; i++)
+        {
+            enemyGears[i] = new Gear(enemyGearObjects[i], isMainGear: false);
+        }
+        mainGear.SetWrench(wrenchObject);
+        mainGear.OnDamaged += () =>
+        {
+            DamageAllies(BattleController.CurrentBattle?.allies);
+        };
+    }
+
     void Update()
     {
         UpdateMinigame(Time.deltaTime);
@@ -37,8 +63,6 @@ public class HellTwistMinigame : MonoBehaviour, IMinigame
     public void StartMinigame()
     {
         remainingTime = _duration;
-        dodgeTimer = dodgeWindow;
-        twistPattern = new TwistPattern(requiredDodges);
         isMinigameActive = true;
     }
 
@@ -59,35 +83,30 @@ public class HellTwistMinigame : MonoBehaviour, IMinigame
             return;
         }
 
-        if (twistPattern == null)
-        {
-            twistPattern = new TwistPattern(requiredDodges);
-        }
-
         remainingTime -= deltaTime;
-        dodgeTimer -= deltaTime;
+        directionChangeTimer -= deltaTime;
 
-        if (dodgeTimer <= 0f)
+        if (!GearClockwise)
         {
-            dodgeTimer = dodgeWindow;
-            twistPattern.StepPattern();
+            deltaTime = -deltaTime;
+        }
+        
+        if (directionChangeTimer <= 0f)
+        {
+            GearClockwise = !GearClockwise;
+            directionChangeTimer = directionChangeInterval;
         }
 
-        if (twistPattern.IsComplete())
+        foreach (Gear enemyGear in enemyGears)
         {
-            DamageEnemies(BattleController.CurrentBattle?.enemies);
-            EndMinigame();
-            return;
+            enemyGear.Rotate(rotationSpeedEnemyGear * deltaTime);
         }
+        mainGear.AutoRotation(rotationSpeedEnemyGear * deltaTime);
 
         if (remainingTime > 0f)
         {
             return;
         }
-
-        DamageAllies(BattleController.CurrentBattle?.allies);
-
-        EndMinigame();
     }
 
     public void HandleInput(Vector2 input)
@@ -97,20 +116,9 @@ public class HellTwistMinigame : MonoBehaviour, IMinigame
             return;
         }
 
-        if (input.sqrMagnitude <= 0.25f)
-        {
-            return;
-        }
+        float rotationAmount = input.x * rotationSpeedMainGear * Time.deltaTime;
+        mainGear.Rotate(rotationAmount);
 
-        if (twistPattern == null)
-        {
-            twistPattern = new TwistPattern(requiredDodges);
-        }
-
-        if (twistPattern.RegisterDodge(input))
-        {
-            dodgeTimer = dodgeWindow;
-        }
     }
 
     public void DamageAllies(Character[] allies)

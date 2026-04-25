@@ -28,12 +28,13 @@ public enum SelectionMenuContext
 
 public class BattleUIController : MonoBehaviour
 {
-    [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private GameObject battleSquare;
-    [SerializeField] private Camera battleCamera;
-    private VisualElement root;
+    [SerializeField] private UIDocument uiDocument = null!;
+    [SerializeField] private GameObject battleSquare = null!;
+    [SerializeField] private Camera battleCamera = null!;
+    private VisualElement root = null!;
     private bool isUIInitialized;
     static public Action<Character, Character?>? UpdateAllyUI;
+
     [Header("UI Elements Ally 1")]
     [SerializeField] private string allyContainer1 = "ally-container-1";
     [SerializeField] private string allyName1 = "ally-name";
@@ -41,12 +42,12 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private string allyHP1 = "ally-hp";
     [SerializeField] private string allyHealthBar1 = "hp-bar-fill";
     [SerializeField] private string[] actionButtonNames1 = { "btn-atk", "btn-hack", "btn-item", "btn-boom" };
-    private VisualElement allyContainerElement1;
-    private Label allyNameElement1;
-    private VisualElement allySpriteElement1;
-    private Label allyHP1Element;
-    private VisualElement allyHealthBarElement1;
-    private Button[] actionButtons1;
+    private VisualElement allyContainerElement1 = null!;
+    private Label allyNameElement1 = null!;
+    private VisualElement allySpriteElement1 = null!;
+    private Label allyHP1Element = null!;
+    private VisualElement allyHealthBarElement1 = null!;
+    private Button[] actionButtons1 = null!;
     private int selectedActionIndex1 = 0;
 
     [Header("UI Elements Ally 2")]
@@ -56,12 +57,12 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private string allyHP2 = "ally-hp-2";
     [SerializeField] private string allyHealthBar2 = "hp-bar-fill-2";
     [SerializeField] private string[] actionButtonNames2 = { "btn-atk-2", "btn-hack-2", "btn-item-2", "btn-boom-2" };
-    private VisualElement allyContainerElement2;
-    private Label allyNameElement2;
-    private VisualElement allySpriteElement2;
-    private Label allyHP2Element;
-    private VisualElement allyHealthBarElement2;
-    private Button[] actionButtons2;
+    private VisualElement allyContainerElement2 = null!;
+    private Label allyNameElement2 = null!;
+    private VisualElement allySpriteElement2 = null!;
+    private Label allyHP2Element = null!;
+    private VisualElement allyHealthBarElement2 = null!;
+    private Button[] actionButtons2 = null!;
     private int selectedActionIndex2 = 0;
 
     [Header("UI Elements Options")]
@@ -71,12 +72,12 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private string optionsFullContainer = "dialog-options";
     [SerializeField] private string[] optionButtonNames = { "dialog-option-1", "dialog-option-2", "dialog-option-3", "dialog-option-4", "dialog-option-5", "dialog-option-6" };
     [SerializeField] private string[] textBoxOptionNames = { "dialog-1", "dialog-2", "dialog-3" };
-    private VisualElement optionsContainerElement;
-    private VisualElement optionsContainerElement2;
-    private VisualElement textBoxContainerElement;
+    private VisualElement optionsContainerElement = null!;
+    private VisualElement optionsContainerElement2 = null!;
+    private VisualElement textBoxContainerElement = null!;
     // private VisualElement optionsFullContainerElement;
-    private Label[] textBoxOptions;
-    private Label[] optionButtons;
+    private Label[] textBoxOptions = null!;
+    private Label[] optionButtons = null!;
     private int selectedOptionIndex = 0;
     private int visibleOptionCount = 0;
 
@@ -95,7 +96,7 @@ public class BattleUIController : MonoBehaviour
         // initalize input
         InputController.OnMove += HandleMoveInput;
         InputController.OnActionZ += HandleActionZInput;
-        InputController.OnActionX += HandleActionXInput;   
+        InputController.OnActionX += HandleActionXInput;
     }
 
     void OnDisable()
@@ -104,7 +105,7 @@ public class BattleUIController : MonoBehaviour
         InputController.OnMove -= HandleMoveInput;
         InputController.OnActionZ -= HandleActionZInput;
         InputController.OnActionX -= HandleActionXInput;
-     }
+    }
 
     void OnDestroy()
     {
@@ -151,7 +152,8 @@ public class BattleUIController : MonoBehaviour
         return true;
     }
 
-    void InitializeUI() {
+    void InitializeUI()
+    {
         // Initialize Ally 1 elements
         allyContainerElement1 = root.Q<VisualElement>(name: allyContainer1);
         allyNameElement1 = root.Q<Label>(name: allyName1);
@@ -753,34 +755,53 @@ public class BattleUIController : MonoBehaviour
         optionsContainerElement2.style.visibility = Visible ? Visibility.Visible : Visibility.Hidden;
     }
 
-    void SetTextBoxDisplay(bool options = false) {
-        if (options) {
+    void SetTextBoxDisplay(bool options = false)
+    {
+        if (options)
+        {
             optionsContainerElement.style.display = DisplayStyle.Flex;
             textBoxContainerElement.style.display = DisplayStyle.None;
-        } else {
+        }
+        else
+        {
             optionsContainerElement.style.display = DisplayStyle.None;
             textBoxContainerElement.style.display = DisplayStyle.Flex;
         }
     }
 
-    void SetTextBoxText(string[] textLines) {
-        for (int i = 0; i < textBoxOptions.Length; i++) {
-            if (i < textLines.Length) {
+    void SetTextBoxText(string[] textLines)
+    {
+        for (int i = 0; i < textBoxOptions.Length; i++)
+        {
+            if (i < textLines.Length)
+            {
                 textBoxOptions[i].text = textLines[i];
                 textBoxOptions[i].style.display = DisplayStyle.Flex;
-            } else {
+            }
+            else
+            {
                 textBoxOptions[i].style.display = DisplayStyle.None;
             }
         }
     }
 
-    void SetOptionButtonText(string[] optionLines) {
+    void SetOptionButtonText(string[] optionLines)
+    {
         visibleOptionCount = Mathf.Clamp(optionLines?.Length ?? 0, 0, optionButtons.Length);
-        for (int i = 0; i < optionButtons.Length; i++) {
-            if (i < visibleOptionCount) {
+        if (optionLines == null || optionLines.Length == 0)
+        {
+            visibleOptionCount = 0;
+            return;
+        }
+        for (int i = 0; i < optionButtons.Length; i++)
+        {
+            if (i < visibleOptionCount)
+            {
                 optionButtons[i].text = optionLines[i];
                 optionButtons[i].style.display = DisplayStyle.Flex;
-            } else {
+            }
+            else
+            {
                 optionButtons[i].RemoveFromClassList("dialog-option--selected");
                 optionButtons[i].style.display = DisplayStyle.None;
             }
@@ -806,7 +827,9 @@ public class BattleUIController : MonoBehaviour
             allyHP2Element.text = $"{ally2.CurrentHp}/{ally2.Hp}";
             allyHealthBarElement2.style.width = Length.Percent(hpPercent2 * 100);
             allyContainerElement2.style.display = DisplayStyle.Flex;
-        } else {
+        }
+        else
+        {
             allyContainerElement2.style.display = DisplayStyle.None;
         }
     }

@@ -6,6 +6,7 @@ public abstract class Enemy
 {
     public string Name { get; private set; }
     public int Hp { get; private set; }
+    public bool IsDefeated => Hp <= 0;
 
     public float attackSpeed { get; private set; } // Used for attacks, minigame navigation, etc.
     public Dictionary<string, int> damage { get; private set; }

@@ -21,12 +21,22 @@ public class Arm
     public float timeBetweenAttacks = 1f;
     public Animator animator;
     public SpriteRenderer spriteRenderer;
+    public GameObject armObject;
     public ArmState CurrentState { get; private set; } = ArmState.Idle;
     public Action OnDamaged;
     private string[] animStates = { "Idle", "Attack", "Block" };
     private int[] animStateHashes;
+    public Arm(GameObject armObject, Animator animator, SpriteRenderer spriteRenderer)
+    {
+        // Use this constructor for secure links
+        this.animator = animator;
+        this.spriteRenderer = spriteRenderer;
+        this.armObject = armObject;
+        InitAnims();
+    }
     public Arm(Bat bat, Animator animator, SpriteRenderer spriteRenderer)
     {
+        // Use this constructor for Attack
         this.bat = bat;
         this.animator = animator;
         this.spriteRenderer = spriteRenderer;
@@ -112,6 +122,17 @@ public class Arm
         if (currentStateTimer <= 0f)
         {
             Reset();
+        }
+    }
+
+    public void SecureUpdate()
+    {
+        currentStateTimer -= Time.deltaTime;
+        if (currentStateTimer <= 0f)
+        {
+            Reset();
+            // Player missed apply damage
+            OnDamaged?.Invoke();
         }
     }
 }

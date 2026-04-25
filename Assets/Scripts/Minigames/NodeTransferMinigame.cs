@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
-public class NodeTransfer : MonoBehaviour, IMinigame
+public class NodeTransferMinigame : MonoBehaviour, IMinigame
 {
     [SerializeField] private GameObject battleCamera;
     [SerializeField] private GameObject nodeObject;
@@ -22,6 +22,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     private float objectiveScaleTime = 0f;
     private float enemyMoveTimer = 0f;
     private float enemyMoveInterval = 0.3f;
+    private float remainingTime;
 
     public string minigameName => _name;
     public float duration => _duration;
@@ -84,6 +85,17 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     public void StartMinigame()
     {
         isMinigameActive = true;
+        remainingTime = _duration;
+    }
+
+    void HandleTimer(float deltaTime)
+    {
+        remainingTime -= deltaTime;
+        if (remainingTime <= 0f)
+        {
+            DamageAllies(BattleController.CurrentBattle?.allies);
+            EndMinigameReason("Time's up");
+        }
     }
 
     public void EndMinigameReason(string reason)
@@ -123,6 +135,8 @@ public class NodeTransfer : MonoBehaviour, IMinigame
         if (!isMinigameActive) return;
         // Move enemy towards the node at regular intervals
         MoveEnemy(deltaTime);
+        // Handle timer
+        HandleTimer(deltaTime);
 
         // Objective radar logic
         // The node keeps scaling up and down to indicate how close the player is to the objective. The closer they are, the larger the node gets.

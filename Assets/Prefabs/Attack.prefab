@@ -158,8 +158,8 @@ MonoBehaviour:
   _allyDamage: 30
   _enemyDamage: 15
   _name: Attack Minigame
-  playerBatObject: {fileID: 0}
-  enemyArmObject: {fileID: 0}
+  playerBatObject: {fileID: 151913951053718360}
+  enemyArmObject: {fileID: 5005025319227091640}
 --- !u!1 &292077908413790118
 GameObject:
   m_ObjectHideFlags: 0
