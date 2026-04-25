@@ -32,18 +32,18 @@ public class InputController : MonoBehaviour
         controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
         controls.PlayerActions.ExInteract.performed += ctx => OnActionX?.Invoke();
         controls.PlayerActions.Menu.performed += ctx => OnActionC?.Invoke();
-        controls.PlayerActions.Move.performed += ctx =>
-        {
-            Vector2 dir =ctx.ReadValue<Vector2>();
-            if (dir.y > 0.5f)
-            {
-                OnNavigate?.Invoke(-1);
-            }
-            else if(dir.y <-0.5f)
-            {
-                OnNavigate?.Invoke(1);
-            }
-            controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
-        };
+        // controls.PlayerActions.Move.performed += ctx =>
+        // {
+        //     Vector2 dir =ctx.ReadValue<Vector2>();
+        //     if (dir.y > 0.5f)
+        //     {
+        //         OnNavigate?.Invoke(-1);
+        //     }
+        //     else if(dir.y <-0.5f)
+        //     {
+        //         OnNavigate?.Invoke(1);
+        //     }
+        //     controls.PlayerActions.Interact.performed += ctx => OnActionZ?.Invoke();
+        // };
     }
 }

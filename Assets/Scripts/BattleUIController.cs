@@ -78,6 +78,7 @@ public class BattleUIController : MonoBehaviour
     private Label[] textBoxOptions;
     private Label[] optionButtons;
     private int selectedOptionIndex = 0;
+    private int visibleOptionCount = 0;
 
     private SelectionState currentSelectionState = SelectionState.Ally1;
     private SelectionMenuContext currentMenuContext = SelectionMenuContext.None;
@@ -202,7 +203,7 @@ public class BattleUIController : MonoBehaviour
 
         SetTextBoxDisplay(false);
         AdjustOptionsVisibility(false);
-        SetBattleSquareActive(false);
+        SetBattleSquareActive(false, "UI initialization");
         root.style.display = DisplayStyle.None;
     }
 
@@ -231,7 +232,7 @@ public class BattleUIController : MonoBehaviour
             SetTextBoxText(initialText);
             SetTextBoxDisplay(true);
             StartActorSelection();
-            SetBattleSquareActive(false);
+            // SetBattleSquareActive(false, "Battle UI initialized");
             root.style.display = DisplayStyle.Flex;
             battleCamera.enabled = true;
         }
@@ -287,12 +288,11 @@ public class BattleUIController : MonoBehaviour
         currentSelectionState = currentActorIndex == 0 ? SelectionState.Ally1 : SelectionState.Ally2;
         currentMenuContext = SelectionMenuContext.None;
         AdjustOptionsVisibility(false);
-        SetBattleSquareActive(false);
     }
 
     private void HandleBattleEnd()
     {
-        SetBattleSquareActive(false);
+        SetBattleSquareActive(false, "Battle ended");
         if (root != null)
         {
             root.style.display = DisplayStyle.None;
@@ -302,16 +302,17 @@ public class BattleUIController : MonoBehaviour
 
     private void HandleMinigameStarted()
     {
-        SetBattleSquareActive(true);
+        SetBattleSquareActive(true, "Minigame started");
     }
 
     private void HandleMinigameEnded()
     {
-        SetBattleSquareActive(false);
+        SetBattleSquareActive(false, "Minigame ended");
     }
 
-    private void SetBattleSquareActive(bool isActive)
+    private void SetBattleSquareActive(bool isActive, string reason)
     {
+        Debug.Log($"Setting battle square active: {isActive}. Reason: {reason}");
         if (battleSquare != null)
         {
             battleSquare.SetActive(isActive);
@@ -357,14 +358,24 @@ public class BattleUIController : MonoBehaviour
     {
         currentMenuContext = context;
         currentSelectionState = SelectionState.Options;
-        selectedOptionIndex = 0;
         ClearOptionSelection();
         SetOptionButtonText(labels);
-        if (optionButtons.Length > 0 && optionButtons[0] != null)
+        selectedOptionIndex = 0;
+        if (visibleOptionCount > 0 && optionButtons[0] != null)
         {
             optionButtons[0].AddToClassList("dialog-option--selected");
         }
         AdjustOptionsVisibility(true);
+    }
+
+    private int GetVisibleOptionCount()
+    {
+        if (optionButtons == null)
+        {
+            return 0;
+        }
+
+        return Mathf.Clamp(visibleOptionCount, 0, optionButtons.Length);
     }
 
     private string[] BuildEnemyLabels()
@@ -497,34 +508,41 @@ public class BattleUIController : MonoBehaviour
         Debug.Log($"Move Input Received: {input}");
         if (currentSelectionState == SelectionState.Options)
         {
+            int visibleCount = GetVisibleOptionCount();
+            if (visibleCount <= 0)
+            {
+                return;
+            }
+
+            selectedOptionIndex = Mathf.Clamp(selectedOptionIndex, 0, visibleCount - 1);
             int lastSelectedOptionIndex = selectedOptionIndex;
 
             if (input.x > 0.5f)
             {
                 // Move right
-                selectedOptionIndex = (selectedOptionIndex + 3) % optionButtons.Length;
+                selectedOptionIndex = (selectedOptionIndex + 3) % visibleCount;
             }
             else if (input.x < -0.5f)
             {
                 // Move left
-                selectedOptionIndex = (selectedOptionIndex - 3 + optionButtons.Length) % optionButtons.Length;
+                selectedOptionIndex = (selectedOptionIndex - 3 + visibleCount) % visibleCount;
             }
             else if (input.y > 0.5f)
             {
                 // Move up
-                selectedOptionIndex = (selectedOptionIndex - 1 + optionButtons.Length) % optionButtons.Length;
+                selectedOptionIndex = (selectedOptionIndex - 1 + visibleCount) % visibleCount;
             }
             else if (input.y < -0.5f)
             {
                 // Move down
-                selectedOptionIndex = (selectedOptionIndex + 1) % optionButtons.Length;
+                selectedOptionIndex = (selectedOptionIndex + 1) % visibleCount;
             }
 
-            if (optionButtons[lastSelectedOptionIndex] != null)
+            if (lastSelectedOptionIndex >= 0 && lastSelectedOptionIndex < visibleCount && optionButtons[lastSelectedOptionIndex] != null)
             {
                 optionButtons[lastSelectedOptionIndex].RemoveFromClassList("dialog-option--selected");
             }
-            if (optionButtons[selectedOptionIndex] != null)
+            if (selectedOptionIndex >= 0 && selectedOptionIndex < visibleCount && optionButtons[selectedOptionIndex] != null)
             {
                 optionButtons[selectedOptionIndex].AddToClassList("dialog-option--selected");
             }
@@ -571,6 +589,14 @@ public class BattleUIController : MonoBehaviour
     {
         if (currentSelectionState == SelectionState.Options)
         {
+            int visibleCount = GetVisibleOptionCount();
+            if (visibleCount <= 0)
+            {
+                return;
+            }
+
+            selectedOptionIndex = Mathf.Clamp(selectedOptionIndex, 0, visibleCount - 1);
+
             if (currentMenuContext == SelectionMenuContext.AttackTarget || currentMenuContext == SelectionMenuContext.BoomTarget)
             {
                 if (currentEnemies != null && currentEnemies.Length > 0)
@@ -749,11 +775,13 @@ public class BattleUIController : MonoBehaviour
     }
 
     void SetOptionButtonText(string[] optionLines) {
+        visibleOptionCount = Mathf.Clamp(optionLines?.Length ?? 0, 0, optionButtons.Length);
         for (int i = 0; i < optionButtons.Length; i++) {
-            if (i < optionLines.Length) {
+            if (i < visibleOptionCount) {
                 optionButtons[i].text = optionLines[i];
                 optionButtons[i].style.display = DisplayStyle.Flex;
             } else {
+                optionButtons[i].RemoveFromClassList("dialog-option--selected");
                 optionButtons[i].style.display = DisplayStyle.None;
             }
         }

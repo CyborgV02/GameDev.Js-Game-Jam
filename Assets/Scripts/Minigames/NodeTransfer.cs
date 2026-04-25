@@ -37,8 +37,8 @@ public class NodeTransfer : MonoBehaviour, IMinigame
 
     void OnEnable()
     {
-        ObjectiveCollected += () => {ObjectiveCollectedFlag = true; objectiveObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies);};
-        GoalCollected += () => {if (!ObjectiveCollectedFlag) return; GoalCollectedFlag = true; goalObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies); EndMinigame();};
+        ObjectiveCollected += () => { ObjectiveCollectedFlag = true; objectiveObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies); };
+        GoalCollected += () => { if (!ObjectiveCollectedFlag) return; GoalCollectedFlag = true; goalObject.SetActive(false); DamageEnemies(BattleController.CurrentBattle?.enemies); EndMinigameReason("Goal collected"); };
         PlayerDamaged += () => DamageAllies(BattleController.CurrentBattle?.allies);
     }
 
@@ -50,7 +50,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     }
     void Awake()
     {
-        InputController.OnMove += HandleInput;   
+        InputController.OnMove += HandleInput;
     }
 
     void OnDestroy()
@@ -86,6 +86,12 @@ public class NodeTransfer : MonoBehaviour, IMinigame
         isMinigameActive = true;
     }
 
+    public void EndMinigameReason(string reason)
+    {
+        Debug.Log("Node Transfer Minigame Ended" + (string.IsNullOrEmpty(reason) ? "" : $": {reason}"));
+        EndMinigame();
+    }
+
     public void EndMinigame()
     {
         isMinigameActive = false;
@@ -96,33 +102,27 @@ public class NodeTransfer : MonoBehaviour, IMinigame
         Destroy(gameObject);
     }
 
+    void MoveEnemy(float deltaTime)
+    {
+        enemyMoveTimer += deltaTime;
+        if (enemyMoveTimer >= enemyMoveInterval)
+        {
+            enemyMoveTimer = 0f;
+            // Move enemy towards the node
+            Vector2 direction = new Vector2(node.x - enemyNode.x, node.y - enemyNode.y);
+            if (direction != Vector2.zero)
+            {
+                direction = direction.normalized;
+                enemyNode.Move((Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y)));
+            }
+        }
+    }
+
     public void UpdateMinigame(float deltaTime)
     {
         if (!isMinigameActive) return;
         // Move enemy towards the node at regular intervals
-        enemyMoveTimer += deltaTime;
-        if (enemyMoveTimer >= enemyMoveInterval && enemyNode != null && node != null)
-        {
-            enemyMoveTimer = 0f;
-            (int,int) directionToNode = (0, 0);
-            if (enemyNode.x < node.x)
-            {
-                directionToNode.Item1 = 1;
-            }
-            else if (enemyNode.x > node.x)
-            {
-                directionToNode.Item1 = -1;
-            }
-            if (enemyNode.y < node.y)
-            {
-                directionToNode.Item2 = 1;
-            }
-            else if (enemyNode.y > node.y)
-            {
-                directionToNode.Item2 = -1;
-            }
-            enemyNode.Move(directionToNode);
-        }
+        MoveEnemy(deltaTime);
 
         // Objective radar logic
         // The node keeps scaling up and down to indicate how close the player is to the objective. The closer they are, the larger the node gets.
@@ -130,13 +130,14 @@ public class NodeTransfer : MonoBehaviour, IMinigame
         if (ObjectiveCollectedFlag == false)
         {
             distanceToObjective = Vector2.Distance(new Vector2(node.x, node.y), new Vector2(objectiveNode.x, objectiveNode.y));
-        } else if (GoalCollectedFlag == false)
+        }
+        else if (GoalCollectedFlag == false)
         {
             distanceToObjective = Vector2.Distance(new Vector2(node.x, node.y), new Vector2(GoalNode.x, GoalNode.y));
         }
         float maxDistance = 20f;
         float proximityFactor = Mathf.Clamp01(1 - (distanceToObjective / maxDistance));
-        
+
         // Bumping effect on player node: increases bump speed and intensity as player gets closer to objective
         objectiveScaleTime += Time.deltaTime;
         float bumpSpeed = Mathf.Lerp(1f, 6f, proximityFactor);
@@ -144,7 +145,7 @@ public class NodeTransfer : MonoBehaviour, IMinigame
         float baseScale = 2f;
         float bumpAmount = Mathf.Sin(objectiveScaleTime * bumpSpeed * Mathf.PI * 2f) * bumpIntensity;
         float playerScale = Mathf.Clamp(baseScale + bumpAmount, baseScale - bumpIntensity, 7f);
-        
+
         if (nodeObject != null)
         {
             nodeObject.transform.localScale = new Vector3(playerScale, playerScale, 1);
@@ -160,22 +161,24 @@ public class NodeTransfer : MonoBehaviour, IMinigame
     public void DamageAllies(Character[] allies)
     {
         // TODO: Implement DamageAllies logic
+        if (!isMinigameActive) return;
         if (allies == null || allies.Length == 0) return;
         for (int i = 0; i < allies.Length; i++)
         {
             allies[i].TakeDamage(allyDamage);
         }
+        int _enemySpawn = Random.Range(5, 12);
+        enemyNode.SnapToPosition((_enemySpawn, _enemySpawn));
     }
 
     public void DamageEnemies(Enemy[] enemies)
     {
         // TODO: Implement DamageEnemies logic
+        if (!isMinigameActive) return;
         if (enemies == null || enemies.Length == 0) return;
         for (int i = 0; i < enemies.Length; i++)
         {
             enemies[i].TakeDamage(enemyDamage);
         }
-        int _enemySpawn = Random.Range(5, 12);
-        enemyNode.SnapToPosition((_enemySpawn, _enemySpawn));
     }
 }

@@ -529,6 +529,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeTransferPrefab: {fileID: 1861866710730302835, guid: 43db93a524e2e344d8cb31863469cbde, type: 3}
+  attackMinigamePrefab: {fileID: 100000, guid: aca80a638a158374e8cec35e7b213b2c, type: 3}
+  secureLinksPrefab: {fileID: 100000, guid: 61ce0caab26d4da8811f11013cc3f001, type: 3}
+  dischargePrefab: {fileID: 100000, guid: 2a8b52b33f0b4f17bfae520079f5cb76, type: 3}
+  hellTwistPrefab: {fileID: 100000, guid: 1d4a6d3b8f724a49b874f0a8d14cb0d1, type: 3}
 --- !u!114 &178622033
 MonoBehaviour:
   m_ObjectHideFlags: 0
