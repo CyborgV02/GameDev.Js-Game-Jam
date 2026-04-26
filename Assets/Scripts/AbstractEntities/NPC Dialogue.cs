@@ -31,6 +31,7 @@ public class NPCDialogue : MonoBehaviour,IInteractable
         else
         {
             StartDialogue();
+           
         }
     }
 
@@ -40,8 +41,8 @@ public class NPCDialogue : MonoBehaviour,IInteractable
         dialogueIndex=0;
         nameText.SetText(dialogueData.recordName);
         dialoguePanel.SetActive(true);
-
         StartCoroutine(TypeLine());
+        PauseManager.SetPause(true);
     }
 
     void NextLine()
@@ -90,5 +91,7 @@ public class NPCDialogue : MonoBehaviour,IInteractable
         isDialogueActive=false;
         dialogueText.SetText("");
         dialoguePanel.SetActive(false);
+        PauseManager.SetPause(false);
+        
     }
 }

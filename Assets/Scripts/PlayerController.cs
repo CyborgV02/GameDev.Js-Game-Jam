@@ -26,6 +26,11 @@ public class PlayerController : MonoBehaviour
     {
         playerRb.velocity = moveInput * moveSpeed;
 
+        if (PauseManager.IsGamePaused)
+        {
+             playerRb.velocity =Vector2.zero;
+        }
+
     }
    public void Move(Vector2 context)
    {

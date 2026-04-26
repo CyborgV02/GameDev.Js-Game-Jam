@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEditor;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -45,15 +46,15 @@ public class InventoryUI : MonoBehaviour
         isOpen = true;
         gameObject.SetActive(true);
         selectedIndex = 0;
-        Time.timeScale = 0;
         RefreshUI();
+        Time.timeScale=0;
     }
 
     private void CloseInventory()
     {
         gameObject.SetActive(false);
         isOpen = false;
-        Time.timeScale = 1;
+        Time.timeScale=1;
     }
 
     private void RefreshUI()
