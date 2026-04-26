@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3155d475efefbf47a1d19a2872f907f, type: 3}
-  m_Name: Record E-001
+  m_Name: Record E-101
   m_EditorClassIdentifier: 
-  recordName: Record E-001
+  recordName: Record E-101
   dialogueLines:
-  - There's no way they cancelled the entire production to fund this stupid experiment!
-  - I have been working here for years only for my entire work to be replaced with
-    this child's play
-  typingSpeed: 0.05
-  voiceSound: {fileID: 8300000, guid: dc1c01762b328974f80c08f62191913e, type: 3}
+  - I understand why my higher ups are not happy with this change but there's nothing
+    we can do
+  - We have to put passion aside if we want to feed our families
+  typingSpeed: 0.03
+  voiceSound: {fileID: 0}
   voicePitch: 1
-  autoProgressLines: 0100
+  autoProgressLines: 
   autoprogressDelay: 1.5
