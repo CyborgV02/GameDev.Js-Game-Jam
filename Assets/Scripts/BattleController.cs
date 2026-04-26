@@ -141,6 +141,7 @@ public class BattleController : MonoBehaviour
                         {
                             // For non-main characters, apply damage directly (this can be expanded with enemy attack patterns later)
                             command.EnemyTarget.TakeDamage(command.Character.AttackDamage * command.Character.Level / 4);
+                            NotifyEnemyDamaged(command.EnemyTarget);
                             CheckBattleOutcome();
                         }
                     }
@@ -148,9 +149,12 @@ public class BattleController : MonoBehaviour
                 case CommandType.Boom:
                     if (command.EnemyTarget != null)
                     {
-                        command.EnemyTarget.Boom();
-                        NotifyEnemyDamaged(command.EnemyTarget);
-                        CheckBattleOutcome();
+                        if (command.EnemyTarget.Hp <= 0)
+                        {
+                            command.EnemyTarget.Boom();
+                            NotifyEnemyDamaged(command.EnemyTarget);
+                            CheckBattleOutcome();
+                        }
                     }
                     break;
                 case CommandType.UseItem:
@@ -195,6 +199,12 @@ public class BattleController : MonoBehaviour
             }
         }
 
+        if (currentBattle == null)
+        {
+            Debug.Log("No active battle to commit commands for or battle has already ended!");
+            return;
+        }
+
         if (pendingMinigame != null)
         {
             pendingMinigame.StartMinigame();
@@ -203,9 +213,11 @@ public class BattleController : MonoBehaviour
         } else if (!isAnyMinigameTriggered)
         {
             // If no minigame was triggered, use a ranndom minigame to keep the battle engaging
-            string[] randomMinigames = new string[] { "NodeTransfer", "SecureLinks", "Discharge", "HellTwist" };
+            string[] randomMinigames = new string[] { "NodeTransfer", "SecureLinks", "HellTwist" };
             string randomMinigame = randomMinigames[UnityEngine.Random.Range(0, randomMinigames.Length)];
             InstantiateMinigame(randomMinigame);
+            pendingMinigame?.StartMinigame();
+            pendingMinigame = null;
             OnMinigameStarted?.Invoke();
         }
     }
@@ -347,5 +359,6 @@ public class BattleController : MonoBehaviour
 
         currentBattle.EndBattle(result);
         OnBattleEnd?.Invoke();
+        currentBattle = null;
     }
 }

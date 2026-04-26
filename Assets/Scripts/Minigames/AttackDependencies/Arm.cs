@@ -26,6 +26,7 @@ public class Arm
     public Action OnDamaged;
     private string[] animStates = { "Idle", "Attack", "Block" };
     private int[] animStateHashes;
+    private bool hasTriggeredBatStun;
     public Arm(GameObject armObject, Animator animator, SpriteRenderer spriteRenderer)
     {
         // Use this constructor for secure links
@@ -60,6 +61,7 @@ public class Arm
             // TODO : Play replace with actual arm
             CurrentState = ArmState.Attacking; 
             currentStateTimer = attackDuration;
+            hasTriggeredBatStun = false;
             animator.Play(animStateHashes[1]);
         }
     }
@@ -90,6 +92,7 @@ public class Arm
     {
         CurrentState = ArmState.Idle;
         currentStateTimer = 0f;
+        hasTriggeredBatStun = false;
         // Implement reset logic here
         animator.Play(animStateHashes[0]);
     }
@@ -104,21 +107,31 @@ public class Arm
             Stun(true, true);
             bat.ParryReset();
         }
+        else
+        if (CurrentState == ArmState.Attacking && bat.CurrentState == Bat.BatState.Parrying)
+        {
+            Stun(false, false);
+        }
+        else
         if (bat.CurrentState == Bat.BatState.Attacking && CurrentState != ArmState.Attacking)
         {
             Stun(false, true);
             bat.Reset();
         }
+        else
         if (bat.CurrentState == Bat.BatState.Attacking && CurrentState == ArmState.Attacking)
         {
             Stun(false, false);
             bat.Stun(false);
             bat.Reset();
         }
-        if (bat.CurrentState != Bat.BatState.Stunned && !bat.IsInParryWindow() && CurrentState == ArmState.Attacking)
+        else
+        if (!hasTriggeredBatStun && bat.CurrentState != Bat.BatState.Stunned && !bat.IsInParryWindow() && CurrentState == ArmState.Attacking)
         {
+            hasTriggeredBatStun = true;
             bat.Stun(true);
         }
+
         if (currentStateTimer <= 0f)
         {
             Reset();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ public abstract class Enemy
     public int Hp { get; private set; }
     public bool IsDefeated => Hp <= 0;
     public bool IsBoomed { get; private set; }
+    internal Action OnDefeated; // Event triggered when the enemy is defeated
 
     public float attackSpeed { get; private set; } // Used for attacks, minigame navigation, etc.
     public Dictionary<string, int> damage { get; private set; }
@@ -37,5 +39,6 @@ public abstract class Enemy
     public void Boom()
     {
         IsBoomed = true;
+        OnDefeated?.Invoke();
     }
 }

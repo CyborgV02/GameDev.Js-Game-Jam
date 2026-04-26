@@ -35,7 +35,7 @@ public abstract class Character
         this.abilities = abilities;
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
         currentHp -= damage;
         if (currentHp < 0) currentHp = 0;
