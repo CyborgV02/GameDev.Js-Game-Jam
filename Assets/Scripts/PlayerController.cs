@@ -12,17 +12,25 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private MainCharacter playerCharacter;
     public MainCharacter Character { get { return playerCharacter; } }
     public Animator anim;
-    private bool playingFootsteps=false;
-    public float footstepsSpeed=0.5f;
+    private bool playingFootsteps = false;
+    public float footstepsSpeed = 0.5f;
+    private bool CanMove => !PauseManager.IsGamePaused && (BattleController.CurrentBattle == null);
 
-    
+
 
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         playerCharacter = new MainCharacter(sprites); // Pass the sprites array here
         InputController.OnMove += Move;
-        anim=GetComponent<Animator>();
+        anim = GetComponent<Animator>();
+        playerCharacter.GameObject = gameObject; // Link the Character to this GameObject
+        playerCharacter.OnDefeated += () =>
+        {
+            Debug.Log("Player has been defeated!");
+            // GAME OVER HERE
+
+        };
     }
 
     void Update()
@@ -31,8 +39,8 @@ public class PlayerController : MonoBehaviour
 
         if (PauseManager.IsGamePaused)
         {
-             playerRb.velocity =Vector2.zero;
-             StopFootsteps();
+            playerRb.velocity = Vector2.zero;
+            StopFootsteps();
         }
         if (playerRb.velocity.magnitude > 0 && !playingFootsteps)
         {
@@ -44,24 +52,31 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-   public void Move(Vector2 context)
-   {
-    moveInput = context;
-    anim.SetBool("Iswalking", moveInput != Vector2.zero);
-    anim.SetFloat("InputX", moveInput.x);
-    anim.SetFloat("InputY", moveInput.y);
-   }
-
-   void StartFootsteps()
+    public void Move(Vector2 context)
     {
-        playingFootsteps=true;
+        if (!CanMove) {
+            moveInput = Vector2.zero;
+            anim.SetBool("Iswalking", false);
+            anim.SetFloat("InputX", 0);
+            anim.SetFloat("InputY", 0);
+            return;
+        };
+        moveInput = context;
+        anim.SetBool("Iswalking", moveInput != Vector2.zero);
+        anim.SetFloat("InputX", moveInput.x);
+        anim.SetFloat("InputY", moveInput.y);
+    }
+
+    void StartFootsteps()
+    {
+        playingFootsteps = true;
         SFXManager.play("Footsteps");
-        InvokeRepeating(nameof(PlayFootsteps),0f,footstepsSpeed);
+        InvokeRepeating(nameof(PlayFootsteps), 0f, footstepsSpeed);
     }
 
     void StopFootsteps()
     {
-        playingFootsteps=false;
+        playingFootsteps = false;
         CancelInvoke(nameof(PlayFootsteps));
     }
 

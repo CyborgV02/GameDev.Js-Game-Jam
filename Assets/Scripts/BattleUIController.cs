@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Slider = UnityEngine.UI.Slider;
 
 public enum SelectionState
 {
@@ -80,6 +81,10 @@ public class BattleUIController : MonoBehaviour
     private Label[] optionButtons = null!;
     private int selectedOptionIndex = 0;
     private int visibleOptionCount = 0;
+
+    [SerializeField] private Slider EnemyHealthBar = null!;
+    private Enemy? trackedEnemy;
+    private int trackedEnemyMaxHp = 1;
 
     private SelectionState currentSelectionState = SelectionState.Ally1;
     private SelectionMenuContext currentMenuContext = SelectionMenuContext.None;
@@ -227,6 +232,7 @@ public class BattleUIController : MonoBehaviour
             currentEnemies = payload.battle.enemies;
             currentSelectionBatch = new BattleSelectionBatch();
             currentActorIndex = 0;
+            InitializeEnemyHealthBar(currentEnemies != null && currentEnemies.Length > 0 ? currentEnemies[0] : null);
             UpdateAllyInfo(payload.battle.player, payload.battle.allies.Length > 1 ? payload.battle.allies[1] : null);
             string[] initialText = payload.battle.battleText.SetText(new BattleTextPayload
             {
@@ -327,6 +333,7 @@ public class BattleUIController : MonoBehaviour
     private void HandleBattleEnd()
     {
         SetBattleSquareActive(false, "Battle ended");
+        SetEnemyHealthBarVisible(false);
         if (root != null)
         {
             root.style.display = DisplayStyle.None;
@@ -342,6 +349,27 @@ public class BattleUIController : MonoBehaviour
     private void HandleMinigameEnded()
     {
         SetBattleSquareActive(false, "Minigame ended");
+
+        if (!isUIInitialized)
+        {
+            return;
+        }
+
+        Battle? battle = BattleController.CurrentBattle;
+        if (battle == null || battle.state == BattleState.Victory || battle.state == BattleState.Defeat)
+        {
+            return;
+        }
+
+        if (currentSelectionState != SelectionState.None)
+        {
+            return;
+        }
+
+        currentSelectionBatch = new BattleSelectionBatch();
+        activeSelection = null;
+        currentActorIndex = 0;
+        StartActorSelection();
     }
 
     private void SetBattleSquareActive(bool isActive, string reason)
@@ -871,7 +899,7 @@ public class BattleUIController : MonoBehaviour
     {
         // Update Ally 1 UI
         allyNameElement1.text = ally1.Name;
-        Debug.Log(ally1.Sprite[0]);
+        Debug.Log(ally1.Sprite);
         allySpriteElement1.style.backgroundImage = new StyleBackground(ally1.Sprite[0]); // Assuming Character has a Sprite property
         float hpPercent1 = (float)ally1.CurrentHp / ally1.Hp;
         if (ally1.IsDown)
@@ -919,7 +947,64 @@ public class BattleUIController : MonoBehaviour
 
     private void HandleEnemyDamaged(Enemy _)
     {
-        RefreshHealthBarsFromCurrentBattle();
+        UpdateEnemyHealthBar(_);
+    }
+
+    private void InitializeEnemyHealthBar(Enemy? enemy)
+    {
+        trackedEnemy = enemy;
+
+        if (EnemyHealthBar == null)
+        {
+            return;
+        }
+
+        if (enemy == null)
+        {
+            SetEnemyHealthBarVisible(false);
+            return;
+        }
+
+        trackedEnemyMaxHp = Mathf.Max(1, enemy.Hp);
+        EnemyHealthBar.minValue = 0f;
+        EnemyHealthBar.maxValue = trackedEnemyMaxHp;
+        EnemyHealthBar.wholeNumbers = true;
+        EnemyHealthBar.value = enemy.Hp;
+        SetEnemyHealthBarVisible(true);
+    }
+
+    private void UpdateEnemyHealthBar(Enemy? enemy)
+    {
+        if (enemy == null)
+        {
+            return;
+        }
+
+        if (trackedEnemy != enemy)
+        {
+            trackedEnemy = enemy;
+            trackedEnemyMaxHp = Mathf.Max(1, enemy.Hp);
+            if (EnemyHealthBar != null)
+            {
+                EnemyHealthBar.minValue = 0f;
+                EnemyHealthBar.maxValue = trackedEnemyMaxHp;
+                EnemyHealthBar.wholeNumbers = true;
+            }
+        }
+
+        if (EnemyHealthBar != null)
+        {
+            EnemyHealthBar.value = Mathf.Clamp(enemy.Hp, 0, trackedEnemyMaxHp);
+            SetEnemyHealthBarVisible(true);
+        }
+    }
+
+    private void SetEnemyHealthBarVisible(bool visible)
+    {
+        if (EnemyHealthBar != null)
+        {
+            EnemyHealthBar.gameObject.SetActive(visible);
+        }
     }
 
     private void RefreshHealthBarsFromCurrentBattle()

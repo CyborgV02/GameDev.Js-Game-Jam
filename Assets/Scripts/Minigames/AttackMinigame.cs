@@ -59,6 +59,7 @@ public class AttackMinigame : MonoBehaviour, IMinigame
         Debug.Log("Attack Minigame Ended");
         // Implement end logic here
         isMinigameActive = false;
+        BattleController.Instance?.NotifyMinigameEnded();
         Destroy(gameObject);
     }
 
