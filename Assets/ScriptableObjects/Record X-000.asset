@@ -17,7 +17,7 @@ MonoBehaviour:
   - OPERATIONAL SYSTEMS FINALIZED. WORKSHOP READY TO RECIEVE NEW INSTRUCTIONS. PROCEED
     WITH CAUTION.
   typingSpeed: 0.03
-  voiceSound: {fileID: 0}
+  voiceSound: {fileID: 8300000, guid: dc1c01762b328974f80c08f62191913e, type: 3}
   voicePitch: 1
   autoProgressLines: 
-  autoprogressDelay: 1.5
+  autoprogressDelay: 3

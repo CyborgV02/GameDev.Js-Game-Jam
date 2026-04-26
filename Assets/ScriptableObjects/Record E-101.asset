@@ -18,7 +18,7 @@ MonoBehaviour:
     we can do
   - We have to put passion aside if we want to feed our families
   typingSpeed: 0.03
-  voiceSound: {fileID: 0}
+  voiceSound: {fileID: 8300000, guid: dc1c01762b328974f80c08f62191913e, type: 3}
   voicePitch: 1
   autoProgressLines: 
-  autoprogressDelay: 1.5
+  autoprogressDelay: 3

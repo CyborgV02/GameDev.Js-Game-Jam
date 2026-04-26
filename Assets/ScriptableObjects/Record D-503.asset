@@ -18,7 +18,7 @@ MonoBehaviour:
   - we haven't seen the engineers all day and there's a big mess here
   - We can't access the main interface anymore and the doors aren't operational
   typingSpeed: 0.03
-  voiceSound: {fileID: 0}
+  voiceSound: {fileID: 8300000, guid: dc1c01762b328974f80c08f62191913e, type: 3}
   voicePitch: 1
   autoProgressLines: 
-  autoprogressDelay: 1.5
+  autoprogressDelay: 3
