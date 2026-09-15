@@ -62,7 +62,7 @@ This project is a Pixel art JRPG in Unity as a personal project focused on learn
 1. Clone the repository.
 
 ```bash
-git clone https://github.com/USERNAME/REPOSITORY.git
+git clone https://github.com/CyborgV02/GameDev.Js-Game-Jam.git
 ```
 
 2. Open the project using Unity Hub.
